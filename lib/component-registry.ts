@@ -50,11 +50,11 @@ export const components: ComponentEntry[] = [
         name: "Primary Button",
         slug: "primary-button",
         category: "Inputs",
-        description: "The primary action trigger for important user flows. High visibility with amber accent.",
+        description: "The primary action trigger for important user flows. High visibility with purple accent.",
         component: PrimaryButton,
         sourcePath: "components/ui/buttons/primary-button.tsx",
         status: "production-ready",
-        tags: ["interactive", "button", "primary", "amber"],
+        tags: ["interactive", "button", "primary", "purple"],
         usage: {
             whenToUse: [
                 "Main calls to action like 'Submit' or 'Continue'.",
@@ -74,14 +74,14 @@ export const components: ComponentEntry[] = [
         },
         notes: {
             decisions: [
-                "Used amber-500 for high contrast against zinc-950 background.",
+                "Used violet-500 for high contrast against zinc-950 background.",
                 "Implemented hover scale transform for tactile feedback.",
                 "Ensured 44px minimum touch target for accessibility."
             ],
             performance: "Zero-dependency component using standard Tailwind transforms."
         },
         versions: [
-            { version: "1.0.0", date: "2024-01-20", status: "stable", changelog: "Initial implementation with amber theme." }
+            { version: "1.0.0", date: "2024-01-20", status: "stable", changelog: "Initial implementation with purple theme." }
         ],
         relatedProjects: ["admin-dashboard"],
         updatedAt: "2024-01-20",
@@ -105,7 +105,7 @@ export const components: ComponentEntry[] = [
         name: "Outline Button",
         slug: "outline-button",
         category: "Inputs",
-        description: "Minimalist action trigger with amber hover state. Best for tertiary actions.",
+        description: "Minimalist action trigger with purple hover state. Best for tertiary actions.",
         component: OutlineButton,
         sourcePath: "components/ui/buttons/variant-buttons.tsx",
         status: "production-ready",

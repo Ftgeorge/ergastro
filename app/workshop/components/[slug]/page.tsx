@@ -1,6 +1,5 @@
 import { components } from "@/lib/component-registry"
 import { notFound } from "next/navigation"
-import Link from "next/link"
 import fs from "fs"
 import path from "path"
 import { ComponentDetail } from "@/components/workshop/component-detail"
@@ -37,17 +36,9 @@ export default async function ComponentPage({ params }: PageProps) {
     }
 
     return (
-        <div className="min-h-screen bg-zinc-950 py-12 text-zinc-100">
-            <div className="container mx-auto max-w-5xl px-4">
+        <div className="min-h-full bg-zinc-950 py-12 text-zinc-100">
+            <div className="container mx-auto max-w-5xl px-6">
                 <header className="mb-12">
-                    <Link
-                        href="/workshop/components"
-                        className="group mb-8 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500 transition-colors hover:text-accent"
-                    >
-                        <span className="text-lg transition-transform group-hover:-translate-x-1">←</span>
-                        Workshop Inventory
-                    </Link>
-
                     <div className="flex flex-col gap-3">
                         <h1 className="text-4xl font-black tracking-tight sm:text-5xl">
                             {name}

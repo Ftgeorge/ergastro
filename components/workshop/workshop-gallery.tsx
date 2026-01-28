@@ -1,13 +1,15 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { components, ComponentStatus, projects } from "@/lib/component-registry"
 import { WorkshopCard } from "@/components/workshop/workshop-card"
+import { ComponentListItem } from "@/components/workshop/component-list-item"
 import { cn } from "@/lib/utils"
-import { Search, Filter, Layers, SortDesc, Clock, Zap, Star, Repeat, FlaskConical } from "lucide-react"
+import { Search, Filter, Layers, SortDesc, Clock, Zap, Star, Repeat, FlaskConical, LayoutGrid, List } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
-type SortOption = "recency" | "stability" | "reuse"
+type SortOption = "recency" | "stability" | "reuse" | "alphabetical"
+type ViewMode = "list" | "grid"
 
 export function WorkshopGallery() {
     const [activeCategory, setActiveCategory] = useState<string>("All")
@@ -15,9 +17,33 @@ export function WorkshopGallery() {
     const [activeProject, setActiveProject] = useState<string>("All")
     const [searchQuery, setSearchQuery] = useState("")
     const [sortBy, setSortBy] = useState<SortOption>("recency")
+    const [viewMode, setViewMode] = useState<ViewMode>("list")
+    const searchInputRef = useRef<HTMLInputElement>(null)
+
+    // Persist view mode
+    useEffect(() => {
+        const savedView = localStorage.getItem("ergastro-view-mode") as ViewMode
+        if (savedView) setViewMode(savedView)
+    }, [])
+
+    const toggleView = (mode: ViewMode) => {
+        setViewMode(mode)
+        localStorage.setItem("ergastro-view-mode", mode)
+    }
+
+    // Keyboard shortcut for search
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+                e.preventDefault()
+                searchInputRef.current?.focus()
+            }
+        }
+        window.addEventListener("keydown", handleKeyDown)
+        return () => window.removeEventListener("keydown", handleKeyDown)
+    }, [])
 
     const categories = ["All", ...Array.from(new Set(components.map((c) => c.category)))]
-    const projectList = ["All", ...projects.map(p => p.slug)]
     const statuses: (ComponentStatus | "All")[] = ["All", "production-ready", "experimental", "in-progress"]
 
     const filteredComponents = useMemo(() => {
@@ -27,6 +53,7 @@ export function WorkshopGallery() {
                 const matchesStatus = activeStatus === "All" || c.status === activeStatus
                 const matchesProject = activeProject === "All" || (c.relatedProjects?.includes(activeProject) || false)
                 const matchesSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    c.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     c.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                     c.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
                 return matchesCategory && matchesStatus && matchesSearch && matchesProject
@@ -34,6 +61,7 @@ export function WorkshopGallery() {
             .sort((a, b) => {
                 if (sortBy === "recency") return b.updatedAt.localeCompare(a.updatedAt)
                 if (sortBy === "reuse") return b.reuseCount - a.reuseCount
+                if (sortBy === "alphabetical") return a.name.localeCompare(b.name)
                 if (sortBy === "stability") {
                     const order = { "production-ready": 0, "experimental": 1, "in-progress": 2 }
                     return order[a.status] - order[b.status]
@@ -43,152 +71,161 @@ export function WorkshopGallery() {
     }, [activeCategory, activeStatus, activeProject, searchQuery, sortBy])
 
     return (
-        <div className="flex flex-col gap-12 lg:flex-row">
-            {/* Sidebar Filters */}
-            <aside className="w-full lg:w-64 flex flex-col gap-10">
-                {/* Search Input - Search-first UX */}
-                <div className="flex flex-col gap-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">Quick Search</h3>
-                    <div className="relative group">
-                        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-accent transition-colors" />
+        <div className="flex flex-col gap-8 lg:gap-12">
+            {/* Search and Navigation - Developer Tool Header */}
+            <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="relative flex-1 max-w-2xl group">
+                        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-accent transition-colors" />
                         <input
+                            ref={searchInputRef}
                             type="text"
-                            placeholder="Find implementation..."
+                            placeholder="Find implementation... (press / to focus)"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full rounded-xl border border-zinc-900 bg-zinc-900/50 py-3 pl-12 pr-4 text-xs font-bold text-zinc-200 outline-none ring-accent/20 transition-all focus:border-accent focus:ring-4"
+                            className="w-full rounded-2xl border border-zinc-900 bg-zinc-900/30 py-4 pl-12 pr-12 text-sm font-medium text-zinc-100 outline-none ring-accent/10 transition-all focus:border-accent/40 focus:bg-zinc-900/50 focus:ring-4"
                         />
-                    </div>
-                </div>
-
-                {/* Categories */}
-                <div className="flex flex-col gap-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">Categories</h3>
-                    <div className="flex flex-col gap-1">
-                        {categories.map((category) => (
-                            <button
-                                key={category}
-                                onClick={() => setActiveCategory(category)}
-                                className={cn(
-                                    "flex items-center justify-between rounded-lg px-3 py-2 text-[11px] font-bold uppercase tracking-widest transition-all",
-                                    activeCategory === category
-                                        ? "bg-zinc-900 text-accent"
-                                        : "text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-300"
-                                )}
-                            >
-                                {category}
-                                {activeCategory === category && <div className="h-1 w-1 rounded-full bg-accent" />}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Status */}
-                <div className="flex flex-col gap-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">System Status</h3>
-                    <div className="flex flex-col gap-1">
-                        {statuses.map((status) => (
-                            <button
-                                key={status}
-                                onClick={() => setActiveStatus(status)}
-                                className={cn(
-                                    "flex items-center gap-3 rounded-lg px-3 py-2 text-[11px] font-bold uppercase tracking-widest transition-all",
-                                    activeStatus === status
-                                        ? "bg-zinc-900 text-accent"
-                                        : "text-zinc-500 hover:bg-zinc-900/50 hover:text-zinc-300"
-                                )}
-                            >
-                                <div className={cn(
-                                    "h-1.5 w-1.5 rounded-full",
-                                    status === "production-ready" ? "bg-emerald-500" :
-                                        status === "experimental" ? "bg-amber-500" :
-                                            status === "in-progress" ? "bg-blue-500" : "bg-zinc-800"
-                                )} />
-                                {status.replace("-", " ")}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Projects */}
-                <div className="flex flex-col gap-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">Contextual Usage</h3>
-                    <select
-                        value={activeProject}
-                        onChange={(e) => setActiveProject(e.target.value)}
-                        className="w-full rounded-xl border border-zinc-900 bg-zinc-900/50 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-zinc-400 outline-none appearance-none focus:border-accent"
-                    >
-                        <option value="All">All Applied Projects</option>
-                        {projects.map(p => (
-                            <option key={p.slug} value={p.slug}>{p.name}</option>
-                        ))}
-                    </select>
-                </div>
-            </aside>
-
-            {/* Grid Content */}
-            <div className="flex-1 flex flex-col gap-8">
-                {/* Sort Controls */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-900 pb-6">
-                    <div className="text-xs font-bold text-zinc-500">
-                        Showing <span className="text-zinc-100">{filteredComponents.length}</span> System Patterns
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Sort By:</span>
-                        <div className="flex gap-1 rounded-lg bg-zinc-900/50 p-1">
-                            {[
-                                { id: "recency", label: "Recent", icon: Clock },
-                                { id: "stability", label: "Stable", icon: Star },
-                                { id: "reuse", label: "Reuse", icon: Repeat }
-                            ].map(opt => {
-                                const Icon = opt.icon
-                                return (
-                                    <button
-                                        key={opt.id}
-                                        onClick={() => setSortBy(opt.id as SortOption)}
-                                        className={cn(
-                                            "flex items-center gap-2 rounded-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all",
-                                            sortBy === opt.id ? "bg-zinc-800 text-zinc-100" : "text-zinc-600 hover:text-zinc-400"
-                                        )}
-                                    >
-                                        <Icon size={10} />
-                                        {opt.label}
-                                    </button>
-                                )
-                            })}
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-zinc-800 bg-zinc-900 text-[10px] font-black text-zinc-600">
+                            /
                         </div>
                     </div>
+
+                    <div className="flex items-center gap-2 rounded-xl border border-zinc-900 bg-zinc-900/30 p-1">
+                        <button
+                            onClick={() => toggleView("list")}
+                            className={cn(
+                                "flex items-center gap-2 rounded-lg px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all",
+                                viewMode === "list" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                            )}
+                        >
+                            <List size={14} />
+                            List
+                        </button>
+                        <button
+                            onClick={() => toggleView("grid")}
+                            className={cn(
+                                "flex items-center gap-2 rounded-lg px-3 py-2 text-[10px] font-black uppercase tracking-widest transition-all",
+                                viewMode === "grid" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                            )}
+                        >
+                            <LayoutGrid size={14} />
+                            Grid
+                        </button>
+                    </div>
                 </div>
 
-                {/* Grid */}
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                {/* Filters Row */}
+                <div className="flex flex-wrap items-center gap-4 border-b border-zinc-900 pb-6">
+                    <div className="flex items-center gap-4 pr-4 border-r border-zinc-900">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+                            <Filter size={12} />
+                            Status:
+                        </span>
+                        <div className="flex gap-1">
+                            {statuses.map((status) => (
+                                <button
+                                    key={status}
+                                    onClick={() => setActiveStatus(status)}
+                                    className={cn(
+                                        "rounded-lg px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-all",
+                                        activeStatus === status ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50"
+                                    )}
+                                >
+                                    {status.split("-")[0]}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Category:</span>
+                        <select
+                            value={activeCategory}
+                            onChange={(e) => setActiveCategory(e.target.value)}
+                            className="bg-transparent text-[10px] font-black uppercase tracking-widest text-zinc-400 outline-none cursor-pointer hover:text-zinc-200"
+                        >
+                            {categories.map(c => (
+                                <option key={c} value={c} className="bg-zinc-950 font-sans">{c}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="ml-auto flex items-center gap-4">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600 flex items-center gap-2">
+                            <SortDesc size={12} />
+                            Sort:
+                        </span>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value as SortOption)}
+                            className="bg-transparent text-[10px] font-black uppercase tracking-widest text-zinc-400 outline-none cursor-pointer hover:text-zinc-200"
+                        >
+                            <option value="recency" className="bg-zinc-950 font-sans">Recently Updated</option>
+                            <option value="stability" className="bg-zinc-950 font-sans">Stable First</option>
+                            <option value="reuse" className="bg-zinc-950 font-sans">Most Reused</option>
+                            <option value="alphabetical" className="bg-zinc-950 font-sans">Alphabetical</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] text-zinc-700 px-4">
+                    <span>{filteredComponents.length} Implementations</span>
+                    {viewMode === "list" && (
+                        <div className="hidden sm:flex items-center gap-4">
+                            <span className="w-24 text-left">Category</span>
+                            <span className="w-32 text-left">Status</span>
+                            <span className="w-20 text-center">Usage</span>
+                            <span className="w-24 text-right">Updated</span>
+                            <span className="w-[16px]"></span>
+                        </div>
+                    )}
+                </div>
+
+                <div className={cn(
+                    "min-h-[400px]",
+                    viewMode === "grid" ? "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" : "flex flex-col rounded-2xl border border-zinc-900 overflow-hidden"
+                )}>
                     <AnimatePresence mode="popLayout">
                         {filteredComponents.map((component) => (
                             <motion.div
                                 layout
                                 key={component.slug}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ duration: 0.2 }}
                             >
-                                <WorkshopCard
-                                    name={component.name}
-                                    slug={component.slug}
-                                    category={component.category}
-                                    description={component.description}
-                                    preview={<component.component />}
-                                    status={component.status}
-                                    tags={component.tags}
-                                />
+                                {viewMode === "grid" ? (
+                                    <WorkshopCard
+                                        name={component.name}
+                                        slug={component.slug}
+                                        category={component.category}
+                                        description={component.description}
+                                        preview={<component.component />}
+                                        status={component.status}
+                                        tags={component.tags}
+                                    />
+                                ) : (
+                                    <ComponentListItem
+                                        name={component.name}
+                                        slug={component.slug}
+                                        category={component.category}
+                                        status={component.status}
+                                        reuseCount={component.reuseCount}
+                                        updatedAt={component.updatedAt}
+                                        description={component.description}
+                                    />
+                                )}
                             </motion.div>
                         ))}
                     </AnimatePresence>
 
                     {filteredComponents.length === 0 && (
-                        <div className="col-span-full flex h-80 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-zinc-900 bg-zinc-900/10 text-zinc-700">
+                        <div className="flex h-80 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-zinc-900 bg-zinc-900/10 text-zinc-700">
                             <FlaskConical size={48} className="mb-6 opacity-10" />
-                            <p className="text-center text-xs font-black uppercase tracking-[0.3em]">No system patterns match your search criteria</p>
+                            <p className="text-center text-xs font-black uppercase tracking-[0.3em]">No implementations match criteria</p>
                             <button
                                 onClick={() => {
                                     setActiveCategory("All");
@@ -198,7 +235,7 @@ export function WorkshopGallery() {
                                 }}
                                 className="mt-6 text-[10px] font-black uppercase tracking-widest text-accent hover:underline decoration-2 underline-offset-8"
                             >
-                                Reset Workshop Filters
+                                Reset Workshop
                             </button>
                         </div>
                     )}

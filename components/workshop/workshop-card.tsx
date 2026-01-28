@@ -26,7 +26,7 @@ export function WorkshopCard({ name, slug, category, description, preview, statu
     return (
         <Link
             href={`/workshop/components/${slug}`}
-            className="group flex flex-col overflow-hidden rounded-3xl border border-zinc-900 bg-zinc-950 transition-all hover:border-accent/40 hover:shadow-[0_0_40px_rgba(245,158,11,0.05)]"
+            className="group flex flex-col overflow-hidden rounded-3xl border border-zinc-900 bg-zinc-950 transition-all hover:border-accent/40 hover:shadow-[0_0_40px_rgba(139,92,246,0.05)]"
         >
             <div className="flex h-56 items-center justify-center border-b border-zinc-900 bg-zinc-900/30 p-10 transition-all group-hover:bg-zinc-900/10">
                 <div className="scale-90 transition-transform duration-500 group-hover:scale-100">
