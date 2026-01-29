@@ -26,14 +26,14 @@ interface ComponentDetailProps {
     basename: string
 }
 
-type Tab = "Preview" | "Code" | "Usage" | "Notes" | "Versions"
+type Tab = "Preview" | "Code" | "Usage" | "Notes"
 
 const tabIcons: Record<Tab, LucideIcon> = {
     "Preview": Eye,
     "Code": Code2,
     "Usage": BookOpen,
     "Notes": StickyNote,
-    "Versions": History,
+    // "Versions": History,
 }
 
 const statusIcons: Record<string, LucideIcon> = {
@@ -50,7 +50,7 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
 
     const { component: Component, status, tags, reuseCount, updatedAt, sourcePath } = componentEntry
 
-    const tabs: Tab[] = ["Preview", "Code", "Usage", "Notes", "Versions"]
+    const tabs: Tab[] = ["Preview", "Code", "Usage", "Notes"]
 
     const StatusIcon = statusIcons[status] || AlertCircle
 
@@ -216,7 +216,7 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                                 </div>
                             )}
 
-                            {activeTab === "Versions" && (
+                            {/* {activeTab === "Versions" && (
                                 <div className="flex flex-col gap-4">
                                     {componentEntry.versions?.map((v, i) => (
                                         <div key={i} className="flex flex-col gap-6 rounded-2xl border border-zinc-900 bg-zinc-900/10 p-10 sm:flex-row">
@@ -241,7 +241,7 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                                             </div>
                                         )}
                                 </div>
-                            )}
+                            )} */}
                         </motion.div>
                     </AnimatePresence>
                 </div>
