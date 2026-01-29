@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { ArrowRight } from "lucide-react";
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const { scrollYProgress } = useScroll();
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -35,7 +35,7 @@ export default function Home() {
 
       {/* Parallax ambient light with mouse tracking */}
       <motion.div
-        className="pointer-events-none absolute left-1/2 top-1/3 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20"
+        className="pointer-events-none absolute left-1/2 top-1/3 h-200 w-200 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20"
         style={{
           background: "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)",
           x: mousePosition.x,
@@ -54,7 +54,7 @@ export default function Home() {
 
       {/* Secondary glow that moves opposite direction */}
       <motion.div
-        className="pointer-events-none absolute right-1/4 bottom-1/4 h-[600px] w-[600px] rounded-full opacity-10"
+        className="pointer-events-none absolute right-1/4 bottom-1/4 h-150 w-150 rounded-full opacity-10"
         style={{
           background: "radial-gradient(circle, rgba(167, 139, 250, 0.2) 0%, transparent 70%)",
           x: -mousePosition.x * 0.5,
@@ -74,7 +74,7 @@ export default function Home() {
 
       {/* Animated accent line - top */}
       <motion.div
-        className="pointer-events-none absolute left-0 right-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent"
+        className="pointer-events-none absolute left-0 right-0 top-0 h-px bg-linear-to-r from-transparent via-accent/30 to-transparent"
         initial={{ opacity: 0, scaleX: 0 }}
         animate={{ opacity: 1, scaleX: 1 }}
         transition={{ duration: 1.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -82,7 +82,7 @@ export default function Home() {
 
       {/* Animated accent line - bottom */}
       <motion.div
-        className="pointer-events-none absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent"
+        className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-accent/30 to-transparent"
         initial={{ opacity: 0, scaleX: 0 }}
         animate={{ opacity: 1, scaleX: 1 }}
         transition={{ duration: 1.5, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
@@ -96,13 +96,13 @@ export default function Home() {
         transition={{ duration: 1, delay: 1 }}
       >
         <motion.div 
-          className="h-20 w-[1px] bg-gradient-to-b from-accent/40 to-transparent"
+          className="h-20 w-px bg-linear-to-b from-accent/40 to-transparent"
           initial={{ height: 0 }}
           animate={{ height: 80 }}
           transition={{ duration: 0.8, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
         />
         <motion.div 
-          className="absolute left-0 top-0 h-[1px] w-20 bg-gradient-to-r from-accent/40 to-transparent"
+          className="absolute left-0 top-0 h-px w-20 bg-linear-to-r from-accent/40 to-transparent"
           initial={{ width: 0 }}
           animate={{ width: 80 }}
           transition={{ duration: 0.8, delay: 1, ease: [0.22, 1, 0.36, 1] }}
@@ -117,13 +117,13 @@ export default function Home() {
         transition={{ duration: 1, delay: 1.2 }}
       >
         <motion.div 
-          className="absolute bottom-0 right-0 h-20 w-[1px] bg-gradient-to-t from-accent/40 to-transparent"
+          className="absolute bottom-0 right-0 h-20 w-px bg-linear-to-t from-accent/40 to-transparent"
           initial={{ height: 0 }}
           animate={{ height: 80 }}
           transition={{ duration: 0.8, delay: 1.4, ease: [0.22, 1, 0.36, 1] }}
         />
         <motion.div 
-          className="absolute bottom-0 right-0 h-[1px] w-20 bg-gradient-to-l from-accent/40 to-transparent"
+          className="absolute bottom-0 right-0 h-px w-20 bg-linear-to-l from-accent/40 to-transparent"
           initial={{ width: 0 }}
           animate={{ width: 80 }}
           transition={{ duration: 0.8, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
@@ -170,7 +170,7 @@ export default function Home() {
             />
             {/* Trail effect */}
             <motion.div
-              className="absolute left-1/2 top-1/2 h-20 w-[1px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-b from-accent/20 to-transparent"
+              className="absolute left-1/2 top-1/2 h-20 w-px -translate-x-1/2 -translate-y-1/2 bg-linear-to-b from-accent/20 to-transparent"
               style={{
                 filter: "blur(1px)",
               }}
@@ -191,7 +191,7 @@ export default function Home() {
       {/* Staggered reveal letter by letter effect */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-5">
         <motion.div className="text-[20vw] font-black tracking-tighter text-accent/10">
-          {["E", "R", "G", "A", "S", "T", "R", "O"].map((letter, i) => (
+          {["D", "E", "X", "T", "R"].map((letter, i) => (
             <motion.span
               key={i}
               initial={{ opacity: 0, y: 50 }}
@@ -250,7 +250,7 @@ export default function Home() {
               ease: [0.22, 1, 0.36, 1] 
             }}
           >
-            {["E", "R", "G"].map((letter, i) => (
+            {["D", "E"].map((letter, i) => (
               <motion.span
                 key={`first-${i}`}
                 initial={{ opacity: 0, y: 50 }}
@@ -282,7 +282,7 @@ export default function Home() {
                 ease: [0.34, 1.56, 0.64, 1],
               }}
             >
-              {["A", "S", "T"].map((letter, i) => (
+              {["X",].map((letter, i) => (
                 <motion.span
                   key={`accent-${i}`}
                   initial={{ opacity: 0, y: 50 }}
@@ -314,7 +314,7 @@ export default function Home() {
                 </motion.span>
               ))}
             </motion.span>
-            {["R", "O"].map((letter, i) => (
+            {["T", "R"].map((letter, i) => (
               <motion.span
                 key={`last-${i}`}
                 initial={{ opacity: 0, y: 50 }}
@@ -392,20 +392,14 @@ export default function Home() {
               className="group relative flex items-center justify-center overflow-hidden rounded-full bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-accent-foreground transition-all duration-300 hover:shadow-[0_8px_30px_rgba(139,92,246,0.4)]"
             >
               <motion.span 
-                className="relative z-10 transition-transform duration-300 group-hover:translate-x-[-4px]"
+                className="relative z-10 transition-transform duration-300"
                 initial={{ x: 0 }}
               >
                 Enter Workshop
               </motion.span>
-              <motion.span
-                className="relative z-10 inline-block opacity-0 transition-all duration-300 group-hover:opacity-100"
-                initial={{ x: -10, opacity: 0 }}
-                whileHover={{ x: 4, opacity: 1 }}
-              >
-                →
-              </motion.span>
+              <ArrowRight className="size-3 group-hover:translate-x-2 transition-transform duration-300 text-transparent group-hover:text-white"/>
               <motion.div 
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+                className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent"
                 initial={{ x: "-100%" }}
                 whileHover={{ x: "100%" }}
                 transition={{ duration: 0.6 }}
@@ -423,7 +417,7 @@ export default function Home() {
               href="/projects"
               className="group block rounded-full border border-zinc-800/50 bg-zinc-900/20 px-8 py-4 text-sm font-black uppercase tracking-widest text-zinc-400 backdrop-blur-sm transition-all duration-300 hover:border-zinc-600 hover:bg-zinc-900/40 hover:text-zinc-100 hover:shadow-[0_8px_20px_rgba(0,0,0,0.3)]"
             >
-              <span className="transition-transform duration-300 inline-block group-hover:translate-x-[-2px]">
+              <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
                 View Projects
               </span>
             </Link>

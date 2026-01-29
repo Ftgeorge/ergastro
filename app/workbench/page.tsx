@@ -54,7 +54,7 @@ export default function WorkbenchPage() {
                                             <span className="text-sm font-black text-zinc-200 group-hover:text-blue-400 transition-colors">{c.name}</span>
                                             <Timer size={14} className="text-zinc-800" />
                                         </div>
-                                        <p className="text-xs text-zinc-500 font-medium italic">Current state: Alpha testing for Ergastro layout constraints.</p>
+                                        <p className="text-xs text-zinc-500 font-medium italic">Current state: Alpha testing for Dextr layout constraints.</p>
                                     </Link>
                                 ))}
                                 {inProgressCount === 0 && <p className="text-xs text-zinc-700 italic">No components currently in the active build phase.</p>}

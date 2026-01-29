@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useMemo, useEffect, useRef } from "react"
-import { components, ComponentStatus, projects } from "@/lib/component-registry"
+import { components, ComponentStatus } from "@/lib/component-registry"
 import { WorkshopCard } from "@/components/workshop/workshop-card"
 import { ComponentListItem } from "@/components/workshop/component-list-item"
 import { cn } from "@/lib/utils"
-import { Search, Filter, Layers, SortDesc, Clock, Zap, Star, Repeat, FlaskConical, LayoutGrid, List } from "lucide-react"
+import { Search, Filter, SortDesc, FlaskConical, LayoutGrid, List } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 type SortOption = "recency" | "stability" | "reuse" | "alphabetical"
@@ -17,18 +17,18 @@ export function WorkshopGallery() {
     const [activeProject, setActiveProject] = useState<string>("All")
     const [searchQuery, setSearchQuery] = useState("")
     const [sortBy, setSortBy] = useState<SortOption>("recency")
-    const [viewMode, setViewMode] = useState<ViewMode>("list")
+    const [viewMode, setViewMode] = useState<ViewMode>(() => {
+        if (typeof window !== "undefined") {
+            const savedView = localStorage.getItem("Dextr-view-mode") as ViewMode
+            return savedView || "list"
+        }
+        return "list"
+    })
     const searchInputRef = useRef<HTMLInputElement>(null)
-
-    // Persist view mode
-    useEffect(() => {
-        const savedView = localStorage.getItem("ergastro-view-mode") as ViewMode
-        if (savedView) setViewMode(savedView)
-    }, [])
 
     const toggleView = (mode: ViewMode) => {
         setViewMode(mode)
-        localStorage.setItem("ergastro-view-mode", mode)
+        localStorage.setItem("Dextr-view-mode", mode)
     }
 
     // Keyboard shortcut for search
@@ -178,13 +178,13 @@ export function WorkshopGallery() {
                             <span className="w-32 text-left">Status</span>
                             <span className="w-20 text-center">Usage</span>
                             <span className="w-24 text-right">Updated</span>
-                            <span className="w-[16px]"></span>
+                            <span className="w-4"></span>
                         </div>
                     )}
                 </div>
 
                 <div className={cn(
-                    "min-h-[400px]",
+                    "min-h-100",
                     viewMode === "grid" ? "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" : "flex flex-col rounded-2xl border border-zinc-900 overflow-hidden"
                 )}>
                     <AnimatePresence mode="popLayout">

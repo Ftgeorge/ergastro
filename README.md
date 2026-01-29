@@ -141,11 +141,11 @@ To add a new component:
 
 1. Create the component in `components/ui`
    ```tsx
-   // components/ui/buttons/primary-button.tsx
-   export function PrimaryButton() {
+   // components/ui/buttons/button.tsx
+   export function Button() {
      return (
        <button className="rounded-lg bg-indigo-600 px-4 py-2 text-white">
-         Primary Button
+         Button
        </button>
      )
    }
@@ -154,16 +154,16 @@ To add a new component:
 2. Register it in the component registry:
    ```ts
    // lib/component-registry.ts
-   import { PrimaryButton } from "@/components/ui/buttons/primary-button"
+   import { Button } from "@/components/ui/buttons/button"
 
    export const components = [
      {
-       name: "Primary Button",
-       slug: "primary-button",
+       name: "Button",
+       slug: "button",
        category: "Buttons",
-       description: "Primary action button used across layouts",
-       component: PrimaryButton,
-       sourcePath: "components/ui/buttons/primary-button.tsx",
+       description: "Button used across layouts",
+       component: Button,
+       sourcePath: "components/ui/buttons/button.tsx",
      },
    ]
    ```

@@ -1,5 +1,4 @@
-import { PrimaryButton } from "@/components/ui/buttons/primary-button"
-import { SecondaryButton, OutlineButton } from "@/components/ui/buttons/variant-buttons"
+import { ButtonDemo } from "@/components/ui/buttons/button-demo"
 import { BasicCard } from "@/components/ui/cards/basic-card"
 import { ReactNode } from "react"
 
@@ -47,71 +46,34 @@ export interface ProjectEntry {
 
 export const components: ComponentEntry[] = [
     {
-        name: "Primary Button",
-        slug: "primary-button",
+        name: "Button",
+        slug: "button",
         category: "Inputs",
-        description: "The primary action trigger for important user flows. High visibility with purple accent.",
-        component: PrimaryButton,
-        sourcePath: "components/ui/buttons/primary-button.tsx",
+        description: "Single button component with variants (primary, secondary, outline).",
+        component: ButtonDemo,
+        sourcePath: "components/ui/buttons/button.tsx",
         status: "production-ready",
-        tags: ["interactive", "button", "primary", "purple"],
+        tags: ["interactive", "button", "variants"],
         usage: {
             whenToUse: [
-                "Main calls to action like 'Submit' or 'Continue'.",
-                "Primary navigation triggers in forms.",
-                "Whenever a single dominant action is required."
+                "Primary actions (primary variant).",
+                "Secondary actions (secondary or outline variants).",
+                "Any place you need a consistent button API across projects."
             ],
             whenNotToUse: [
-                "Secondary actions (use secondary or outline variant instead).",
-                "Within dense text blocks where it might be distracting.",
-                "For destructive actions (use a red variant if available)."
+                "As a link (use an anchor or Link component instead).",
+                "For destructive actions unless a destructive variant exists."
             ],
             props: [
+                { name: "variant", type: "'primary' | 'secondary' | 'outline'", description: "Visual style variant." },
+                { name: "size", type: "'sm' | 'md' | 'lg'", description: "Button size." },
                 { name: "children", type: "ReactNode", description: "Label content for the button." },
                 { name: "onClick", type: "() => void", description: "Event handler for click interactions." },
                 { name: "className", type: "string", description: "Optional CSS classes." }
             ]
         },
-        notes: {
-            decisions: [
-                "Used violet-500 for high contrast against zinc-950 background.",
-                "Implemented hover scale transform for tactile feedback.",
-                "Ensured 44px minimum touch target for accessibility."
-            ],
-            performance: "Zero-dependency component using standard Tailwind transforms."
-        },
-        versions: [
-            { version: "1.0.0", date: "2024-01-20", status: "stable", changelog: "Initial implementation with purple theme." }
-        ],
-        relatedProjects: ["admin-dashboard"],
-        updatedAt: "2024-01-20",
-        reuseCount: 12,
-        isFeatured: true
-    },
-    {
-        name: "Secondary Button",
-        slug: "secondary-button",
-        category: "Inputs",
-        description: "A subtler action trigger for supplementary flows. Neutral zinc palette.",
-        component: SecondaryButton,
-        sourcePath: "components/ui/buttons/variant-buttons.tsx",
-        status: "production-ready",
-        tags: ["interactive", "button", "secondary"],
-        updatedAt: "2024-01-21",
-        reuseCount: 8,
-        isFeatured: false
-    },
-    {
-        name: "Outline Button",
-        slug: "outline-button",
-        category: "Inputs",
-        description: "Minimalist action trigger with purple hover state. Best for tertiary actions.",
-        component: OutlineButton,
-        sourcePath: "components/ui/buttons/variant-buttons.tsx",
-        status: "production-ready",
-        tags: ["interactive", "button", "outline"],
-        updatedAt: "2024-01-21",
-        reuseCount: 15,
+        updatedAt: "2026-01-29",
+        reuseCount: 0,
         isFeatured: true
     },
     {
@@ -137,15 +99,15 @@ export const projects: ProjectEntry[] = [
         status: "Live",
         problemStatement: "The previous dashboard struggled with layout shifts under heavy data load and had inconsistent action cues.",
         outcome: "Improved user task completion time by 30% and unified the visual language across 14 internal pages.",
-        componentsUsed: ["primary-button", "basic-card", "outline-button"]
+        componentsUsed: ["button", "basic-card"]
     },
     {
-        name: "Ergastro Marketing",
-        slug: "ergastro-marketing",
-        description: "Waitlist and feature landing page for the Ergastro ecosystem.",
+        name: "Dextr Marketing",
+        slug: "Dextr-marketing",
+        description: "Waitlist and feature landing page for the Dextr ecosystem.",
         status: "In Progress",
         problemStatement: "Needed a high-performance landing page that showcases the workshop aesthetic.",
         outcome: "Currently achieving 98+ Lighthouse scores and 15% conversion rate on early traffic.",
-        componentsUsed: ["primary-button", "outline-button"]
+        componentsUsed: ["button"]
     }
 ]

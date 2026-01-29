@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, ReactNode } from "react"
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ComponentEntry, components } from "@/lib/component-registry"
+import {  components } from "@/lib/component-registry"
 import { ComponentPreview } from "@/components/workshop/component-preview"
 import { CodeInspector } from "@/components/workshop/code-inspector"
 import { cn } from "@/lib/utils"
@@ -17,6 +17,7 @@ import {
     Wrench,
     Repeat
 } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
 interface ComponentDetailProps {
     slug: string
@@ -27,7 +28,7 @@ interface ComponentDetailProps {
 
 type Tab = "Preview" | "Code" | "Usage" | "Notes" | "Versions"
 
-const tabIcons: Record<Tab, any> = {
+const tabIcons: Record<Tab, LucideIcon> = {
     "Preview": Eye,
     "Code": Code2,
     "Usage": BookOpen,
@@ -35,7 +36,7 @@ const tabIcons: Record<Tab, any> = {
     "Versions": History,
 }
 
-const statusIcons: Record<string, any> = {
+const statusIcons: Record<string, LucideIcon> = {
     "production-ready": CheckCircle2,
     "experimental": Wrench,
     "in-progress": AlertCircle,
@@ -111,7 +112,7 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                     })}
                 </div>
 
-                <div className="min-h-[500px]">
+                <div className="min-h-125">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={activeTab}
@@ -219,7 +220,7 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                                 <div className="flex flex-col gap-4">
                                     {componentEntry.versions?.map((v, i) => (
                                         <div key={i} className="flex flex-col gap-6 rounded-2xl border border-zinc-900 bg-zinc-900/10 p-10 sm:flex-row">
-                                            <div className="flex flex-col gap-1 min-w-[140px]">
+                                            <div className="flex flex-col gap-1 min-w-35">
                                                 <span className="text-xl font-black text-zinc-100 italic">v{v.version}</span>
                                                 <span className="text-[10px] text-zinc-600 uppercase font-black tracking-[0.2em]">{v.date}</span>
                                             </div>

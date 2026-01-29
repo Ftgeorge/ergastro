@@ -11,8 +11,8 @@ export function CodeBlock({ code, filename }: CodeBlockProps) {
                     {filename}
                 </div>
             )}
-            <div className="overflow-x-auto p-4">
-                <pre className="text-xs font-mono leading-relaxed text-zinc-300">
+            <div className="overflow-hidden p-4">
+                <pre className="whitespace-pre-wrap wrap-break-word text-xs font-mono leading-relaxed text-zinc-300">
                     <code>{code}</code>
                 </pre>
             </div>

@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { Check, Copy, FileCode, ExternalLink } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 interface CodeInspectorProps {
     code: string
@@ -59,9 +58,8 @@ export function CodeInspector({ code, highlightedCode, filename, sourcePath }: C
                 </div>
             </div>
             <div className="relative group">
-                {/* Syntax Highlighting Container */}
                 <div
-                    className="overflow-auto p-8 text-sm font-medium leading-relaxed font-mono selection:bg-accent/30 selection:text-zinc-100"
+                    className="overflow-hidden p-8 text-sm font-medium leading-relaxed font-mono selection:bg-accent/30 selection:text-zinc-100 [&_pre]:bg-transparent! [&_pre]:p-0! [&_pre]:m-0! [&_pre]:whitespace-pre-wrap [&_pre]:wrap-break-word [&_code]:whitespace-pre-wrap [&_code]:wrap-break-word"
                     dangerouslySetInnerHTML={{ __html: highlightedCode }}
                 />
 

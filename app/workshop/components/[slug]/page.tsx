@@ -26,8 +26,8 @@ export default async function ComponentPage({ params }: PageProps) {
         sourceCode = fs.readFileSync(fullPath, "utf-8")
 
         highlightedCode = await codeToHtml(sourceCode, {
-            lang: 'tsx',
-            theme: 'github-dark-dimmed'
+            lang: "tsx",
+            theme: "github-dark-dimmed"
         })
     } catch (error) {
         console.error(`Failed to read source code for ${name}:`, error)
