@@ -134,7 +134,7 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                     <button
                                         onClick={toggleAnimations}
                                         className={cn(
-                                            'p-2 rounded-lg transition-colors',
+                                            'p-2 rounded-md transition-colors',
                                             showAnimations ? 'bg-accent text-accent-foreground' : 'hover:bg-zinc-800'
                                         )}
                                         title="Toggle Animations"
@@ -145,7 +145,7 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                     <button
                                         onClick={toggleCode}
                                         className={cn(
-                                            'p-2 rounded-lg transition-colors',
+                                            'p-2 rounded-md transition-colors',
                                             showCode ? 'bg-accent text-accent-foreground' : 'hover:bg-zinc-800'
                                         )}
                                         title="Toggle Code View"
@@ -160,25 +160,25 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                     <div className="container mx-auto max-w-7xl px-4 py-8">
                         <div className="space-y-6">
                             {/* Preview Area */}
-                            <div className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-6">
+                            <div className="rounded-md border border-zinc-900 bg-zinc-900/20 p-6">
                                 <div className="mb-6 flex items-center justify-between">
                                     <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-zinc-300">
                                         <Play size={16} />
                                         Live Preview
                                     </h3>
                                     <div className="flex items-center gap-2">
-                                        <span className="rounded-full px-2 py-1 text-[9px] font-bold bg-accent/20 text-accent">
+                                        <span className="rounded-md px-2 py-1 text-[9px] font-bold bg-accent/20 text-accent">
                                             {currentScene?.root.type || 'None'}
                                         </span>
                                         {showAnimations && (
-                                            <span className="rounded-full px-2 py-1 text-[9px] font-bold bg-emerald-500/20 text-emerald-500">
+                                            <span className="rounded-md px-2 py-1 text-[9px] font-bold bg-emerald-500/20 text-emerald-500">
                                                 Animated
                                             </span>
                                         )}
                                     </div>
                                 </div>
                                 
-                                <div className="min-h-48 flex items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950 p-8">
+                                <div className="min-h-48 flex items-center justify-center rounded-md border border-zinc-800 bg-zinc-950 p-8">
                                     <div className="w-full">
                                         {currentScene && (
                                             <ComponentRenderer
@@ -194,7 +194,7 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
 
                             {/* Code Output */}
                             {showCode && (
-                                <div className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-6">
+                                <div className="rounded-md border border-zinc-900 bg-zinc-900/20 p-6">
                                     <div className="mb-4 flex items-center justify-between">
                                         <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-zinc-300">
                                             <Code2 size={16} />
@@ -202,7 +202,7 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                         </h3>
                                         <button
                                             onClick={copyCode}
-                                            className="flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-300"
+                                            className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900/50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-300"
                                         >
                                             {copiedCode ? (
                                                 <>
@@ -218,7 +218,7 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                         </button>
                                     </div>
                                     
-                                    <div className="rounded-lg bg-zinc-950 border border-zinc-800 p-4 font-mono text-sm text-zinc-300">
+                                    <div className="rounded-md bg-zinc-950 border border-zinc-800 p-4 font-mono text-sm text-zinc-300">
                                         <pre className="whitespace-pre-wrap break-all">
                                             {generateCode()}
                                         </pre>

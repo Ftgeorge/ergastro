@@ -32,7 +32,7 @@ export function MobileSidebarOverlay({ open, onClose }: MobileSidebarOverlayProp
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded-xl border border-zinc-900 bg-zinc-900/20 p-2 text-zinc-500 transition-colors hover:bg-zinc-900/40 hover:text-zinc-200"
+                        className="rounded-md border border-zinc-900 bg-zinc-900/20 p-2 text-zinc-500 transition-colors hover:bg-zinc-900/40 hover:text-zinc-200"
                         aria-label="Close sidebar"
                     >
                         <X size={16} />

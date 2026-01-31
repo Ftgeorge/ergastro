@@ -120,7 +120,7 @@ export function Dropdown({
                 disabled={disabled}
                 onClick={() => !disabled && setOpen(!open)}
                 className={cn(
-                    "flex h-9 w-full items-center justify-between rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2",
+                    "flex h-9 w-full items-center justify-between rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2",
                     "text-xs font-black uppercase tracking-widest text-zinc-200",
                     "shadow-[0_0_0_1px_rgba(24,24,27,0.6)]",
                     "transition-colors hover:border-zinc-700",
@@ -147,7 +147,7 @@ export function Dropdown({
                     role="listbox"
                     aria-activedescendant={highlightedIndex >= 0 ? `${id}-option-${highlightedIndex}` : undefined}
                     className={cn(
-                        "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-zinc-800 bg-zinc-950 shadow-lg",
+                        "absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-zinc-800 bg-zinc-950 shadow-lg",
                         "focus:outline-none"
                     )}
                 >

@@ -30,11 +30,11 @@ export default function ProjectsPage() {
                     {projects.map((project) => (
                         <div
                             key={project.slug}
-                            className="group grid grid-cols-1 overflow-hidden rounded-3xl border border-zinc-900 bg-zinc-900/20 md:grid-cols-5"
+                            className="group grid grid-cols-1 overflow-hidden rounded-md border border-zinc-900 bg-zinc-900/20 md:grid-cols-5"
                         >
                             <div className="col-span-3 flex flex-col p-10">
                                 <div className="mb-4 flex items-center gap-2">
-                                    <span className="rounded-full bg-accent/10 px-3 py-0.5 text-[10px] font-black uppercase tracking-tight text-accent">
+                                    <span className="rounded-md bg-accent/10 px-3 py-0.5 text-[10px] font-black uppercase tracking-tight text-accent">
                                         {project.status}
                                     </span>
                                 </div>
@@ -79,7 +79,7 @@ export default function ProjectsPage() {
                                             <Link
                                                 key={compSlug}
                                                 href={`/workshop/components/${compSlug}`}
-                                                className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-950 p-4 transition-all hover:border-accent/40 group/item"
+                                                className="flex items-center justify-between rounded-md border border-zinc-800 bg-zinc-950 p-4 transition-all hover:border-accent/40 group/item"
                                             >
                                                 <span className="text-sm font-bold text-zinc-300 group-hover/item:text-accent transition-colors">
                                                     {comp?.name || compSlug}

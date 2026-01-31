@@ -120,13 +120,13 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
 
                     <div className="flex items-center justify-between">
                         <div id="dexter-stack-switcher" className="flex min-w-0 flex-1">
-                            <div className="w-full overflow-x-auto rounded-xl border border-zinc-900 bg-zinc-900/30 p-1 [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                            <div className="w-full overflow-x-auto rounded-md border border-zinc-900 bg-zinc-900/30 p-1 [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                                 <div className="flex min-w-max items-center gap-1 whitespace-nowrap">
                                     <button
                                 type="button"
                                 onClick={() => setFramework("react")}
                                 className={cn(
-                                    "shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
+                                    "shrink-0 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
                                     framework === "react" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
                                 )}
                             >
@@ -136,7 +136,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                                 type="button"
                                 onClick={() => setFramework("react-native")}
                                 className={cn(
-                                    "shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
+                                    "shrink-0 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
                                     framework === "react-native" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
                                 )}
                             >
@@ -146,7 +146,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                                 type="button"
                                 onClick={() => setFramework("flutter")}
                                 className={cn(
-                                    "shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
+                                    "shrink-0 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
                                     framework === "flutter" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
                                 )}
                             >
@@ -170,7 +170,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                         placeholder="Search components..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full rounded-lg border border-zinc-900 bg-zinc-900/30 py-2.5 pl-10 pr-10 text-xs font-medium text-zinc-100 outline-none ring-accent/10 transition-all focus:border-accent/40 focus:bg-zinc-900/50 focus:ring-2"
+                        className="w-full rounded-md border border-zinc-900 bg-zinc-900/30 py-2.5 pl-10 pr-10 text-xs font-medium text-zinc-100 outline-none ring-accent/10 transition-all focus:border-accent/40 focus:bg-zinc-900/50 focus:ring-2"
                         aria-label="Search components"
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-zinc-800 bg-zinc-900 text-[9px] font-black text-zinc-600" aria-hidden="true">
@@ -275,7 +275,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                         console.log('Help button clicked, starting onboarding...')
                         startOnboarding()
                     }}
-                    className="flex items-center justify-between w-full rounded-lg border border-zinc-900 bg-zinc-900/30 px-4 py-3 transition-all hover:border-accent/40 hover:bg-zinc-900/50"
+                    className="flex items-center justify-between w-full rounded-md border border-zinc-900 bg-zinc-900/30 px-4 py-3 transition-all hover:border-accent/40 hover:bg-zinc-900/50"
                 >
                     <div className="flex items-center gap-3">
                         <div className="rounded-md bg-zinc-800 p-1.5">
@@ -292,7 +292,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                 <Link
                     id="dexter-workbench"
                     href="/workbench"
-                    className="flex items-center justify-between rounded-lg border border-zinc-900 bg-zinc-900/30 px-4 py-3 transition-all hover:border-accent/40 hover:bg-zinc-900/50"
+                    className="flex items-center justify-between rounded-md border border-zinc-900 bg-zinc-900/30 px-4 py-3 transition-all hover:border-accent/40 hover:bg-zinc-900/50"
                 >
                     <div className="flex items-center gap-3">
                         <div className="rounded-md bg-zinc-800 p-1.5">

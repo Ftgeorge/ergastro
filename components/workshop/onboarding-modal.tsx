@@ -41,7 +41,7 @@ export function OnboardingModal() {
         <div className="fixed inset-0 z-50">
             <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-sm" onClick={close} />
             <div className="absolute inset-0 flex items-center justify-center p-6">
-                <div className="w-full max-w-2xl overflow-hidden rounded-3xl border border-zinc-900 bg-zinc-950 shadow-2xl">
+                <div className="w-full max-w-2xl overflow-hidden rounded-md border border-zinc-900 bg-zinc-950 shadow-2xl">
                     <div className="flex items-start justify-between border-b border-zinc-900 bg-zinc-900/30 px-8 py-6">
                         <div className="flex flex-col gap-1">
                             <div className="text-lg font-black tracking-tight text-zinc-100">Welcome to Dextr</div>
@@ -50,7 +50,7 @@ export function OnboardingModal() {
                         <button
                             type="button"
                             onClick={close}
-                            className="rounded-xl border border-zinc-900 bg-zinc-900/20 p-2 text-zinc-500 transition-colors hover:bg-zinc-900/40 hover:text-zinc-200"
+                            className="rounded-md border border-zinc-900 bg-zinc-900/20 p-2 text-zinc-500 transition-colors hover:bg-zinc-900/40 hover:text-zinc-200"
                             aria-label="Close"
                         >
                             <X size={16} />
@@ -118,7 +118,7 @@ export function OnboardingModal() {
                         <button
                             type="button"
                             onClick={close}
-                            className="rounded-xl bg-accent px-5 py-2 text-[10px] font-black uppercase tracking-widest text-accent-foreground transition-all hover:opacity-90 active:opacity-80"
+                            className="rounded-md bg-accent px-5 py-2 text-[10px] font-black uppercase tracking-widest text-accent-foreground transition-all hover:opacity-90 active:opacity-80"
                         >
                             Got it
                         </button>

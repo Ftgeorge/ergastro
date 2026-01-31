@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/buttons/button";
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -35,7 +36,7 @@ export default function Home() {
 
       {/* Parallax ambient light with mouse tracking */}
       <motion.div
-        className="pointer-events-none absolute left-1/2 top-1/3 h-200 w-200 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20"
+        className="pointer-events-none absolute left-1/2 top-1/3 h-200 w-200 -translate-x-1/2 -translate-y-1/2 rounded-md opacity-20"
         style={{
           background: "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)",
           x: mousePosition.x,
@@ -54,7 +55,7 @@ export default function Home() {
 
       {/* Secondary glow that moves opposite direction */}
       <motion.div
-        className="pointer-events-none absolute right-1/4 bottom-1/4 h-150 w-150 rounded-full opacity-10"
+        className="pointer-events-none absolute right-1/4 bottom-1/4 h-150 w-150 rounded-md opacity-10"
         style={{
           background: "radial-gradient(circle, rgba(167, 139, 250, 0.2) 0%, transparent 70%)",
           x: -mousePosition.x * 0.5,
@@ -153,7 +154,7 @@ export default function Home() {
             }}
           >
             <motion.div
-              className="h-3 w-3 rounded-full"
+              className="h-3 w-3 rounded-md"
               style={{
                 background: "radial-gradient(circle, rgba(139, 92, 246, 0.6) 0%, transparent 70%)",
                 filter: "blur(2px)",
@@ -201,6 +202,7 @@ export default function Home() {
                 delay: 0.5 + i * 0.1,
                 ease: [0.22, 1, 0.36, 1],
               }}
+              className="inline-block"
             >
               {letter}
             </motion.span>
@@ -211,7 +213,7 @@ export default function Home() {
       {/* Badge at top with spacing */}
       <div className="relative z-10 flex justify-center pt-8">
         <motion.div
-          className="group flex items-center gap-3 rounded-full border border-zinc-800/50 bg-zinc-900/30 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-accent backdrop-blur-md transition-all duration-500 hover:border-accent/40 hover:bg-zinc-900/50"
+          className="group flex items-center gap-3 rounded-md border border-zinc-800/50 bg-zinc-900/30 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-accent backdrop-blur-md transition-all duration-500 hover:border-accent/40 hover:bg-zinc-900/50"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -219,7 +221,7 @@ export default function Home() {
         >
           <span className="relative flex h-2 w-2">
             <motion.span 
-              className="absolute inline-flex h-full w-full rounded-full bg-accent"
+              className="absolute inline-flex h-full w-full rounded-md bg-accent"
               animate={{ 
                 scale: [1, 1.5, 1],
                 opacity: [0.7, 0, 0.7] 
@@ -230,7 +232,7 @@ export default function Home() {
                 ease: "easeInOut"
               }}
             />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
+            <span className="relative inline-flex h-2 w-2 rounded-md bg-accent shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
           </span>
           Workspace 01
         </motion.div>
@@ -387,23 +389,26 @@ export default function Home() {
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
             className="w-full sm:w-auto"
           >
-            <Link
-              href="/workshop/components"
-              className="group relative flex items-center justify-center overflow-hidden rounded-full bg-accent px-8 py-4 text-sm font-black uppercase tracking-widest text-accent-foreground transition-all duration-300 hover:shadow-[0_8px_30px_rgba(139,92,246,0.4)]"
-            >
-              <motion.span 
-                className="relative z-10 transition-transform duration-300"
-                initial={{ x: 0 }}
+            <Link href="/workshop/components">
+              <Button 
+                variant="primary" 
+                size="md"
+                className="group relative flex items-center justify-center overflow-hidden px-8 py-4 text-sm font-black uppercase tracking-widest transition-all duration-300 hover:shadow-[0_8px_30px_rgba(139,92,246,0.4)]"
               >
-                Enter Workshop
-              </motion.span>
-              <ArrowRight className="size-3 group-hover:translate-x-2 transition-transform duration-300 text-transparent group-hover:text-white"/>
-              <motion.div 
-                className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: "100%" }}
-                transition={{ duration: 0.6 }}
-              />
+                <motion.span 
+                  className="relative z-10 transition-transform duration-300"
+                  initial={{ x: 0 }}
+                >
+                  Workshop
+                </motion.span>
+                <ArrowRight className="size-3 group-hover:translate-x-2 transition-transform duration-300 text-transparent group-hover:text-white"/>
+                <motion.div 
+                  className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: "100%" }}
+                  transition={{ duration: 0.6 }}
+                />
+              </Button>
             </Link>
           </motion.div>
 
@@ -413,13 +418,16 @@ export default function Home() {
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
             className="w-full sm:w-auto"
           >
-            <Link
-              href="/workbench"
-              className="group block rounded-full border border-zinc-800/50 bg-zinc-900/20 px-8 py-4 text-sm font-black uppercase tracking-widest text-zinc-400 backdrop-blur-sm transition-all duration-300 hover:border-zinc-600 hover:bg-zinc-900/40 hover:text-zinc-100 hover:shadow-[0_8px_20px_rgba(0,0,0,0.3)]"
-            >
-              <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
-                Workbench
-              </span>
+            <Link href="/workbench">
+              <Button 
+                variant="outline" 
+                size="md"
+                className="block px-8 py-4 text-sm font-black uppercase tracking-widest transition-all duration-300 hover:shadow-[0_8px_20px_rgba(0,0,0,0.3)]"
+              >
+                <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
+                  Workbench
+                </span>
+              </Button>
             </Link>
           </motion.div>
         </motion.div>
