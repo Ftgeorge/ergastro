@@ -10,6 +10,7 @@ import type { LucideIcon } from "lucide-react"
 import Logo from "../ui/logo"
 import { useTour } from "../tour/tour-provider"
 import { components, ComponentStatus } from "@/lib/component-registry"
+import { motion } from "framer-motion"
 
 const statusIcons: Record<ComponentStatus, LucideIcon> = {
     "production-ready": CheckCircle2,
@@ -115,10 +116,20 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
             {/* Sticky Search Header */}
             <div className="sticky top-0 z-10 border-b border-zinc-900 bg-zinc-950 p-4">
                 <div className="mb-4 flex flex-col gap-3">
+                    <div className="w-full flex items-center justify-between">
                     <Link href="/workshop" className="flex items-center gap-3">
                         <Logo />
                     </Link>
-
+                <motion.button
+                    onClick={() => startWorkshopTour()}
+                    className="rounded-full border border-zinc-800 bg-zinc-900/50 p-2 text-xs font-medium text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-200"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <HelpCircle size={14} />
+                </motion.button>
+                    </div>
                     <div className="flex items-center justify-between">
                         <div id="dexter-stack-switcher" className="flex min-w-0 flex-1">
                             <div className="w-full overflow-x-auto rounded-md border border-zinc-900 bg-zinc-900/30 p-1 [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -271,24 +282,6 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
 
             {/* Footer with Workbench Link */}
             <div className="sticky bottom-0 border-t border-zinc-900 bg-zinc-950 p-4 space-y-2">
-                <button
-                    onClick={() => {
-                        startWorkshopTour()
-                    }}
-                    className="flex items-center justify-between w-full rounded-md border border-zinc-900 bg-zinc-900/30 px-4 py-3 transition-all hover:border-accent/40 hover:bg-zinc-900/50"
-                >
-                    <div className="flex items-center gap-3">
-                        <div className="rounded-md bg-zinc-800 p-1.5">
-                            <HelpCircle size={14} className="text-zinc-500" />
-                        </div>
-                        <div className="flex flex-col text-left">
-                            <span className="text-xs font-bold text-zinc-300">Help</span>
-                            <span className="text-[9px] font-medium text-zinc-600">Take a tour</span>
-                        </div>
-                    </div>
-                    <ChevronRight size={14} className="text-zinc-600" />
-                </button>
-
                 <Link
                     id="dexter-workbench"
                     href="/workbench"
