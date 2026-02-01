@@ -13,13 +13,14 @@ import {
     Calendar, Clock, Play, Pause, Sparkles
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
-import { Dropdown } from "../ui/dropdown"
-import { ComponentNode, useWorkbenchStore } from "@/lib/workbench-store"
+import { CompactInput, PropertyRow, CollapsibleSection, IconSelector, AnimationSelector } from "@/components/ui/controls"
+import { Dropdown } from "@/components/ui/dropdown"
+import { Toggle } from "@/components/ui/toggle"
+import { ComponentNode, useWorkbenchStore, AnimationNode } from "@/lib/workbench-store"
 import { useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import Logo from "../ui/logo"
 import { useTour } from "../tour/tour-provider"
-import { CompactToggle, CompactInput, PropertyRow, VariantSelector, SizeSelector, IconSelector, AnimationSelector, CollapsibleSection } from "@/components/ui/controls"
 import { motion } from "framer-motion"
 import React from "react"
 
@@ -208,6 +209,28 @@ export function WorkbenchSidebar() {
         }
     }
 
+    // New function to update multiple props at once
+    const handleMultiplePropChanges = (changes: Record<string, unknown>) => {
+        if (currentScene) {
+            const updatedRootNode = {
+                ...currentScene.root,
+                props: {
+                    ...currentScene.root.props,
+                    ...changes
+                }
+            }
+
+            setCurrentScene({
+                ...currentScene,
+                root: updatedRootNode,
+                metadata: {
+                    ...currentScene.metadata,
+                    updatedAt: new Date().toISOString()
+                }
+            })
+        }
+    }
+
     const handleAnimationChange = (animationPresetId: string) => {
         if (currentScene) {
             const filteredAnimations = currentScene.animations.filter(
@@ -236,11 +259,6 @@ export function WorkbenchSidebar() {
     const getCurrentAnimation = () => {
         if (!currentScene) return null
         return currentScene.animations.find(anim => anim.targetComponentId === currentScene.root.id)
-    }
-
-    const getIconComponent = (iconName: string) => {
-        const iconOption = iconOptions.find(opt => opt.value === iconName)
-        return iconOption?.icon || null
     }
 
     const toggleSection = (section: string) => {
@@ -287,16 +305,6 @@ export function WorkbenchSidebar() {
                     <Link href="/workshop" className="flex items-center gap-3">
                         <Logo />
                     </Link>
-                    <motion.button
-                        onClick={() => startWorkbenchTour()}
-                        className="rounded-full border border-zinc-800 bg-zinc-900/50 p-2 text-xs font-medium text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-200"
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                        aria-label="Start workbench tour"
-                    >
-                        <HelpCircle size={14} />
-                    </motion.button>
                 </div>
 
                 {/* Framework Switcher */}
@@ -401,44 +409,58 @@ export function WorkbenchSidebar() {
                                 <div className="space-y-0.5">
                                     {selectedComponent.usage.props.map((prop: ComponentProp) => {
                                         const currentValue = currentScene?.root.props[prop.name]
-                                        const isBoolean = prop.type.includes("boolean")
+                                        const isBoolean = prop.type === "boolean"
                                         const isVariant = prop.name === "variant"
                                         const isSize = prop.name === "size"
                                         const isChildren = prop.name === "children"
 
                                         // Handle icon-related props with the IconSelector component
                                         if (prop.name === "hasIcon" || prop.name === "iconPosition" || 
-                                            prop.name === "iconPack" || prop.name === "iconName" ||
-                                            prop.name === "leftIcon" || prop.name === "rightIcon") {
+                                            prop.name === "iconPack" || prop.name === "iconName") {
                                             return null // These are handled by IconSelector
                                         }
 
                                         return (
                                             <PropertyRow key={prop.name} name={prop.name} type={prop.type}>
                                                 {isBoolean ? (
-                                                    <CompactToggle
+                                                    <Toggle
                                                         checked={Boolean(currentValue)}
-                                                        onCheckedChange={(checked) => handlePropChange(prop.name, checked)}
-                                                        size="md"
-                                                        color="accent"
-                                                        ariaLabel={`Toggle ${prop.name}`}
+                                                        onCheckedChange={(checked: boolean) => handlePropChange(prop.name, checked)}
+                                                        variant="default"
+                                                        aria-label={`Toggle ${prop.name}`}
                                                     />
                                                 ) : isVariant ? (
-                                                    <VariantSelector
+                                                    <Dropdown
                                                         value={(currentValue as string) || "primary"}
-                                                        onValueChange={(value) => handlePropChange(prop.name, value)}
-                                                        ariaLabel={`Select ${prop.name}`}
+                                                        onValueChange={(value: string) => handlePropChange(prop.name, value)}
+                                                        options={[
+                                                            { value: "primary", label: "Primary" },
+                                                            { value: "secondary", label: "Secondary" },
+                                                            { value: "outline", label: "Outline" },
+                                                            { value: "ghost", label: "Ghost" },
+                                                            { value: "destructive", label: "Destructive" },
+                                                        ]}
+                                                        variant="default"
+                                                        aria-label={`Select ${prop.name}`}
                                                     />
                                                 ) : isSize ? (
-                                                    <SizeSelector
+                                                    <Dropdown
                                                         value={(currentValue as string) || "md"}
-                                                        onValueChange={(value) => handlePropChange(prop.name, value)}
-                                                        ariaLabel={`Select ${prop.name}`}
+                                                        onValueChange={(value: string) => handlePropChange(prop.name, value)}
+                                                        options={[
+                                                            { value: "xs", label: "Extra Small" },
+                                                            { value: "sm", label: "Small" },
+                                                            { value: "md", label: "Medium" },
+                                                            { value: "lg", label: "Large" },
+                                                            { value: "xl", label: "Extra Large" },
+                                                        ]}
+                                                        variant="default"
+                                                        aria-label={`Select ${prop.name}`}
                                                     />
                                                 ) : isChildren ? (
                                                     <CompactInput
                                                         value={(currentValue as string) || ""}
-                                                        onChange={(value) => handlePropChange(prop.name, value)}
+                                                        onChange={(value: string) => handlePropChange(prop.name, value)}
                                                         placeholder="Button text"
                                                         width="md"
                                                         ariaLabel={`Enter ${prop.name}`}
@@ -446,7 +468,7 @@ export function WorkbenchSidebar() {
                                                 ) : (
                                                     <CompactInput
                                                         value={(currentValue as string) || ""}
-                                                        onChange={(value) => handlePropChange(prop.name, value)}
+                                                        onChange={(value: string) => handlePropChange(prop.name, value)}
                                                         placeholder="Value"
                                                         width="md"
                                                         ariaLabel={`Enter ${prop.name}`}
@@ -458,44 +480,46 @@ export function WorkbenchSidebar() {
                                     
                                     {/* Add IconSelector if the component has icon-related props */}
                                     {selectedComponent.usage.props.some(prop => 
-                                        prop.name.startsWith("icon") || prop.name === "hasIcon" || 
-                                        prop.name === "leftIcon" || prop.name === "rightIcon"
+                                        prop.name.startsWith("icon") || prop.name === "hasIcon"
                                     ) && (
                                         <IconSelector
                                             hasIcon={Boolean(currentScene?.root.props.hasIcon)}
-                                            onHasIconChange={(checked) => {
-                                                handlePropChange("hasIcon", checked)
+                                            onHasIconChange={(checked: boolean) => {
+                                                // Always reset values when turning off, regardless of current state
                                                 if (!checked) {
-                                                    handlePropChange("iconPosition", "left")
-                                                    handlePropChange("iconPack", "lucide")
-                                                    handlePropChange("iconName", "none")
+                                                    // Update all props in a single call to avoid batching issues
+                                                    handleMultiplePropChanges({
+                                                        hasIcon: false,
+                                                        iconPosition: "right",
+                                                        iconPack: "lucide",
+                                                        iconName: "none"
+                                                    })
+                                                } else {
+                                                    // When turning on, set a default icon if none is selected
+                                                    const currentIconName = currentScene?.root.props.iconName
+                                                    const changes: Record<string, unknown> = { hasIcon: true }
+                                                    
+                                                    if (!currentIconName || currentIconName === "none") {
+                                                        changes.iconName = "Search"
+                                                    }
+                                                    
+                                                    handleMultiplePropChanges(changes)
                                                 }
                                             }}
-                                            iconPosition={(currentScene?.root.props.iconPosition as string) || "left"}
-                                            onIconPositionChange={(value) => handlePropChange("iconPosition", value)}
+                                            iconPosition={(currentScene?.root.props.iconPosition as string) || "right"}
+                                            onIconPositionChange={(value: string) => handlePropChange("iconPosition", value)}
                                             iconPack={(currentScene?.root.props.iconPack as string) || "lucide"}
-                                            onIconPackChange={(value) => {
-                                                handlePropChange("iconPack", value)
-                                                handlePropChange("iconName", "none")
+                                            onIconPackChange={(value: string) => {
+                                                // Update both iconPack and iconName in a single atomic operation
+                                                handleMultiplePropChanges({
+                                                    iconPack: value,
+                                                    iconName: "none"
+                                                })
                                             }}
                                             iconName={(currentScene?.root.props.iconName as string) || "none"}
-                                            onIconNameChange={(value) => {
-                                                const iconComponent = value === 'none' ? null : getIconComponent(value)
+                                            onIconNameChange={(value: string) => {
                                                 handlePropChange("iconName", value)
-                                                const position = currentScene?.root.props.iconPosition || "left"
-                                                if (position === "left") {
-                                                    handlePropChange("leftIcon", iconComponent)
-                                                    handlePropChange("rightIcon", null)
-                                                } else {
-                                                    handlePropChange("rightIcon", iconComponent)
-                                                    handlePropChange("leftIcon", null)
-                                                }
                                             }}
-                                            leftIcon={currentScene?.root.props.leftIcon as LucideIcon | null}
-                                            onLeftIconChange={(icon) => handlePropChange("leftIcon", icon)}
-                                            rightIcon={currentScene?.root.props.rightIcon as LucideIcon | null}
-                                            onRightIconChange={(icon) => handlePropChange("rightIcon", icon)}
-                                            getIconComponent={getIconComponent}
                                         />
                                     )}
                                 </div>
@@ -515,11 +539,12 @@ export function WorkbenchSidebar() {
                         >
                             <AnimationSelector
                                 animation={getCurrentAnimation() || null}
-                                onAnimationChange={(value) => {
+                                hasIcon={Boolean(currentScene?.root.props.hasIcon)}
+                                onAnimationChange={(value: string) => {
                                     if (value === 'none') {
                                         if (currentScene) {
                                             const filteredAnimations = currentScene.animations.filter(
-                                                anim => anim.targetComponentId !== currentScene.root.id
+                                                (anim: AnimationNode) => anim.targetComponentId !== currentScene.root.id
                                             )
                                             setCurrentScene({
                                                 ...currentScene,

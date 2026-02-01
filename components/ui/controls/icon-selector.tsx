@@ -1,8 +1,8 @@
 "use client"
 
-import { CompactDropdown } from "./compact-dropdown"
-import { CompactToggle } from "./compact-toggle"
-import { LucideIcon } from "lucide-react"
+import { Dropdown } from "@/components/ui/dropdown"
+import { Toggle } from "@/components/ui/toggle"
+import { getAvailableIcons, AVAILABLE_ICON_PACKS } from "@/components/ui/buttons/button-workbench"
 
 interface IconSelectorProps {
     hasIcon: boolean
@@ -13,11 +13,6 @@ interface IconSelectorProps {
     onIconPackChange: (pack: string) => void
     iconName: string
     onIconNameChange: (name: string) => void
-    leftIcon: LucideIcon | null
-    onLeftIconChange: (icon: LucideIcon | null) => void
-    rightIcon: LucideIcon | null
-    onRightIconChange: (icon: LucideIcon | null) => void
-    getIconComponent: (iconName: string) => LucideIcon | null
     disabled?: boolean
 }
 
@@ -26,49 +21,18 @@ const iconPositionOptions = [
     { value: "right", label: "Right" },
 ]
 
-const iconPackOptions = [
-    { value: "lucide", label: "Lucide" },
-    { value: "fontawesome", label: "FA" },
-    { value: "heroicons", label: "Hero" },
-    { value: "feather", label: "Feather" },
-]
+const iconPackOptions = AVAILABLE_ICON_PACKS.map(pack => ({
+    value: pack,
+    label: pack.charAt(0).toUpperCase() + pack.slice(1)
+}))
 
-const iconOptions = [
-    { value: 'none', label: 'None' },
-    { value: 'Search', label: 'Search' },
-    { value: 'Menu', label: 'Menu' },
-    { value: 'X', label: 'Close' },
-    { value: 'ChevronLeft', label: 'Chevron Left' },
-    { value: 'ChevronRight', label: 'Chevron Right' },
-    { value: 'ChevronDown', label: 'Chevron Down' },
-    { value: 'ChevronUp', label: 'Chevron Up' },
-    { value: 'Heart', label: 'Heart' },
-    { value: 'Star', label: 'Star' },
-    { value: 'Download', label: 'Download' },
-    { value: 'Upload', label: 'Upload' },
-    { value: 'Settings', label: 'Settings' },
-    { value: 'Plus', label: 'Plus' },
-    { value: 'Minus', label: 'Minus' },
-    { value: 'Check', label: 'Check' },
-    { value: 'Copy', label: 'Copy' },
-    { value: 'Trash', label: 'Trash' },
-    { value: 'Edit', label: 'Edit' },
-    { value: 'Eye', label: 'Eye' },
-    { value: 'EyeOff', label: 'Eye Off' },
-    { value: 'Lock', label: 'Lock' },
-    { value: 'Unlock', label: 'Unlock' },
-    { value: 'Bell', label: 'Bell' },
-    { value: 'Mail', label: 'Mail' },
-    { value: 'User', label: 'User' },
-    { value: 'Users', label: 'Users' },
-    { value: 'Home', label: 'Home' },
-    { value: 'Folder', label: 'Folder' },
-    { value: 'File', label: 'File' },
-    { value: 'Calendar', label: 'Calendar' },
-    { value: 'Clock', label: 'Clock' },
-    { value: 'Play', label: 'Play' },
-    { value: 'Pause', label: 'Pause' },
-]
+const getIconOptions = (pack: string) => {
+    const availableIcons = getAvailableIcons(pack as any)
+    return [
+        { value: 'none', label: 'None' },
+        ...availableIcons.map(icon => ({ value: icon, label: icon }))
+    ]
+}
 
 export function IconSelector({
     hasIcon,
@@ -79,15 +43,10 @@ export function IconSelector({
     onIconPackChange,
     iconName,
     onIconNameChange,
-    leftIcon,
-    onLeftIconChange,
-    rightIcon,
-    onRightIconChange,
-    getIconComponent,
     disabled = false
 }: IconSelectorProps) {
     return (
-        <div className="space-y-0.5">
+        <div className="space-y-0.5 relative z-50">
             {/* Has Icon Toggle */}
             <div className="group flex items-center gap-3 px-4 py-2.5 transition-all hover:bg-zinc-900/20">
                 <div className="flex-1 min-w-0">
@@ -98,12 +57,11 @@ export function IconSelector({
                         boolean
                     </div>
                 </div>
-                <CompactToggle
+                <Toggle
                     checked={hasIcon}
                     onCheckedChange={onHasIconChange}
-                    size="md"
-                    color="emerald"
-                    ariaLabel="Toggle hasIcon"
+                    variant="default"
+                    aria-label="Toggle hasIcon"
                     disabled={disabled}
                 />
             </div>
@@ -118,13 +76,13 @@ export function IconSelector({
                         string
                     </div>
                 </div>
-                <CompactDropdown
+                <Dropdown
                     value={iconPosition || "left"}
                     onValueChange={onIconPositionChange}
                     options={iconPositionOptions}
-                    width="sm"
+                    variant="default"
                     disabled={!hasIcon || disabled}
-                    ariaLabel="Select icon position"
+                    aria-label="Select icon position"
                 />
             </div>
 
@@ -138,13 +96,13 @@ export function IconSelector({
                         string
                     </div>
                 </div>
-                <CompactDropdown
+                <Dropdown
                     value={iconPack || "lucide"}
                     onValueChange={onIconPackChange}
                     options={iconPackOptions}
-                    width="md"
+                    variant="default"
                     disabled={!hasIcon || disabled}
-                    ariaLabel="Select icon pack"
+                    aria-label="Select icon pack"
                 />
             </div>
 
@@ -158,70 +116,15 @@ export function IconSelector({
                         string
                     </div>
                 </div>
-                <CompactDropdown
+                <Dropdown
                     value={iconName || "none"}
-                    onValueChange={(value) => {
-                        const iconComponent = value === 'none' ? null : getIconComponent(value)
+                    onValueChange={(value: string) => {
                         onIconNameChange(value)
-                        const position = iconPosition || "left"
-                        if (position === "left") {
-                            onLeftIconChange(iconComponent)
-                            onRightIconChange(null)
-                        } else {
-                            onRightIconChange(iconComponent)
-                            onLeftIconChange(null)
-                        }
                     }}
-                    options={iconOptions}
-                    width="md"
+                    options={getIconOptions(iconPack)}
+                    variant="default"
                     disabled={!hasIcon || disabled}
-                    ariaLabel="Select icon name"
-                />
-            </div>
-
-            {/* Left Icon */}
-            <div className="group flex items-center gap-3 px-4 py-2.5 transition-all hover:bg-zinc-900/20">
-                <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold truncate text-zinc-300 group-hover:text-zinc-100 transition-colors">
-                        leftIcon
-                    </div>
-                    <div className="text-[9px] font-medium text-zinc-600 truncate">
-                        LucideIcon
-                    </div>
-                </div>
-                <CompactDropdown
-                    value={leftIcon ? 'selected' : 'none'}
-                    onValueChange={(value) => {
-                        const iconComponent = value === 'none' ? null : getIconComponent('Search')
-                        onLeftIconChange(iconComponent)
-                    }}
-                    options={iconOptions.slice(0, 8)}
-                    width="md"
-                    disabled={disabled}
-                    ariaLabel="Select left icon"
-                />
-            </div>
-
-            {/* Right Icon */}
-            <div className="group flex items-center gap-3 px-4 py-2.5 transition-all hover:bg-zinc-900/20">
-                <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold truncate text-zinc-300 group-hover:text-zinc-100 transition-colors">
-                        rightIcon
-                    </div>
-                    <div className="text-[9px] font-medium text-zinc-600 truncate">
-                        LucideIcon
-                    </div>
-                </div>
-                <CompactDropdown
-                    value={rightIcon ? 'selected' : 'none'}
-                    onValueChange={(value) => {
-                        const iconComponent = value === 'none' ? null : getIconComponent('Search')
-                        onRightIconChange(iconComponent)
-                    }}
-                    options={iconOptions.slice(0, 8)}
-                    width="md"
-                    disabled={disabled}
-                    ariaLabel="Select right icon"
+                    aria-label="Select icon name"
                 />
             </div>
         </div>

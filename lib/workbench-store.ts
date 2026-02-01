@@ -130,6 +130,78 @@ export const ANIMATION_PRESETS: Record<string, AnimationNode> = {
     trigger: 'mount',
     preset: { name: 'Stagger Children', type: 'stagger' },
     config: { duration: 0.3, easing: 'ease-out', delay: 0.05 }
+  },
+  
+  // Icon-specific animations
+  'icon-bounce': {
+    id: 'icon-bounce',
+    targetComponentId: '',
+    trigger: 'hover',
+    preset: { name: 'Icon Bounce', type: 'bounce' },
+    config: { duration: 0.6, easing: 'ease-out', delay: 0.1 }
+  },
+  'icon-spin': {
+    id: 'icon-spin',
+    targetComponentId: '',
+    trigger: 'hover',
+    preset: { name: 'Icon Spin', type: 'rotate' },
+    config: { duration: 0.5, easing: 'linear', delay: 0 }
+  },
+  'icon-pulse': {
+    id: 'icon-pulse',
+    targetComponentId: '',
+    trigger: 'hover',
+    preset: { name: 'Icon Pulse', type: 'scale' },
+    config: { duration: 0.3, easing: 'ease-in-out', delay: 0 }
+  },
+  'icon-slide-in': {
+    id: 'icon-slide-in',
+    targetComponentId: '',
+    trigger: 'mount',
+    preset: { name: 'Icon Slide In', type: 'slide' },
+    config: { duration: 0.4, easing: 'ease-out', delay: 0.2 }
+  },
+  'icon-flip': {
+    id: 'icon-flip',
+    targetComponentId: '',
+    trigger: 'hover',
+    preset: { name: 'Icon Flip', type: 'rotate' },
+    config: { duration: 0.6, easing: 'ease-in-out', delay: 0 }
+  },
+  'icon-shake': {
+    id: 'icon-shake',
+    targetComponentId: '',
+    trigger: 'hover',
+    preset: { name: 'Icon Shake', type: 'bounce' },
+    config: { duration: 0.5, easing: 'ease-in-out', delay: 0, repeat: 2 }
+  },
+  'icon-glow': {
+    id: 'icon-glow',
+    targetComponentId: '',
+    trigger: 'hover',
+    preset: { name: 'Icon Glow', type: 'fade' },
+    config: { duration: 0.3, easing: 'ease-in-out', delay: 0 }
+  },
+  'icon-zoom': {
+    id: 'icon-zoom',
+    targetComponentId: '',
+    trigger: 'hover',
+    preset: { name: 'Icon Zoom', type: 'scale' },
+    config: { duration: 0.2, easing: 'ease-out', delay: 0 }
+  },
+  'icon-rotate-in': {
+    id: 'icon-rotate-in',
+    targetComponentId: '',
+    trigger: 'mount',
+    preset: { name: 'Icon Rotate In', type: 'rotate' },
+    config: { duration: 0.5, easing: 'ease-out', delay: 0.3 }
+  },
+  'icon-elastic': {
+    id: 'icon-elastic',
+    targetComponentId: '',
+    trigger: 'hover',
+    preset: { name: 'Icon Elastic', type: 'scale' },
+    config: { duration: 0.4, easing: 'ease-out', delay: 0 }
   }
 }
 

@@ -1,4 +1,4 @@
-import { projects, components } from "@/lib/component-registry"
+import { projectsData as projects, componentsMetadata as components } from "@/lib/component-data"
 import Link from "next/link"
 import { ExternalLink, Target, Layers } from "lucide-react"
 

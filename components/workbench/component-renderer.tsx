@@ -26,32 +26,57 @@ const ComponentRenderer = memo<ComponentRendererProps>(({
 }) => {
   // Get relevant animations for this component
   const relevantAnimations = useMemo(() => {
-    return animations.filter(anim => anim.targetComponentId === node.id)
+    const filtered = animations.filter(anim => anim.targetComponentId === node.id)
+    console.log('ComponentRenderer - relevantAnimations for', node.id, ':', filtered)
+    return filtered
   }, [animations, node.id])
 
   // Generate animation props
   const animationProps = useMemo(() => {
-    if (relevantAnimations.length === 0) return {}
+    if (relevantAnimations.length === 0) {
+      console.log('ComponentRenderer - No animations for', node.id)
+      return {}
+    }
 
     const mountAnimations = relevantAnimations.filter(anim => anim.trigger === 'mount')
     const hoverAnimations = relevantAnimations.filter(anim => anim.trigger === 'hover')
+    
+    console.log('ComponentRenderer - mountAnimations:', mountAnimations.length, 'hoverAnimations:', hoverAnimations.length)
 
     const props: Record<string, unknown> = {}
 
     if (mountAnimations.length > 0) {
       const firstMount = mountAnimations[0]
+      console.log('ComponentRenderer - Processing mount animation:', firstMount)
+      
+      // Skip icon animations for the wrapper - let ButtonWorkbench handle them
+      if (firstMount.id && firstMount.id.startsWith('icon-')) {
+        console.log('ComponentRenderer - Skipping icon animation for wrapper:', firstMount.id)
+        return {}
+      }
+      
       const output = AnimationRuntime.generateAnimationCode(firstMount)
       
       props.initial = output.framerMotion.initial
       props.animate = output.framerMotion.animate
       props.transition = output.framerMotion.transition
+      console.log('ComponentRenderer - Mount animation props:', props)
     }
 
     if (hoverAnimations.length > 0) {
       const firstHover = hoverAnimations[0]
+      console.log('ComponentRenderer - Processing hover animation:', firstHover)
+      
+      // Skip icon animations for the wrapper - let ButtonWorkbench handle them
+      if (firstHover.id && firstHover.id.startsWith('icon-')) {
+        console.log('ComponentRenderer - Skipping icon animation for wrapper:', firstHover.id)
+        return {}
+      }
+      
       const output = AnimationRuntime.generateAnimationCode(firstHover)
       
       props.whileHover = output.framerMotion.whileHover
+      console.log('ComponentRenderer - Hover animation props:', props)
     }
 
     return props
@@ -102,11 +127,15 @@ const ComponentRenderer = memo<ComponentRendererProps>(({
 
   // Wrap with motion if animations exist
   const WrappedComponent = relevantAnimations.length > 0 ? motion.div : 'div'
+  const motionProps = relevantAnimations.length > 0 ? animationProps : {}
+
+  console.log('ComponentRenderer - Final motionProps:', JSON.stringify(motionProps, null, 2))
+  console.log('ComponentRenderer - WrappedComponent:', relevantAnimations.length > 0 ? 'motion.div' : 'div')
 
   return (
     <div className="flex items-center justify-center min-h-full p-8">
       <WrappedComponent
-        {...animationProps}
+        {...motionProps}
         className={`
           component-node
           ${isChildOfSelected ? 'ring-1 ring-accent/50' : ''}

@@ -1,7 +1,8 @@
 "use client"
 
-import { CompactDropdown } from "./compact-dropdown"
+import { Dropdown } from "@/components/ui/dropdown"
 import { motion, AnimatePresence } from "framer-motion"
+import { useWorkbenchStore } from "@/lib/workbench-store"
 
 interface AnimationSelectorProps {
     animation: {
@@ -14,31 +15,36 @@ interface AnimationSelectorProps {
     } | null
     onAnimationChange: (animationId: string) => void
     disabled?: boolean
+    hasIcon?: boolean // New prop to check if button has an icon
 }
 
-const animationOptions = [
-    { value: 'none', label: 'None' },
-    { value: 'fade-in', label: 'Fade In' },
-    { value: 'slide-up', label: 'Slide Up' },
-    { value: 'scale-in', label: 'Scale In' },
-    { value: 'hover-lift', label: 'Hover Lift' },
-    { value: 'stagger-children', label: 'Stagger Children' },
-]
-
-export function AnimationSelector({ animation, onAnimationChange, disabled }: AnimationSelectorProps) {
+export function AnimationSelector({ animation, onAnimationChange, disabled, hasIcon = false }: AnimationSelectorProps) {
+    const { animationPresets } = useWorkbenchStore()
+    
+    // Create dynamic animation options from the store - only basic animations now
+    const animationOptions = [
+        { value: 'none', label: 'None' },
+        // Basic animations only - icon animations removed
+        ...Object.entries(animationPresets)
+            .filter(([id]) => !id.startsWith('icon-'))
+            .map(([id, preset]) => ({
+                value: id,
+                label: preset.preset.name
+            }))
+    ]
     return (
         <div className="px-4 py-3 space-y-3">
             <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                     Preset
                 </label>
-                <CompactDropdown
+                <Dropdown
                     value={animation?.id || 'none'}
                     onValueChange={onAnimationChange}
                     options={animationOptions}
-                    width="auto"
+                    variant="default"
                     disabled={disabled}
-                    ariaLabel="Select animation"
+                    aria-label="Select animation"
                 />
             </div>
 

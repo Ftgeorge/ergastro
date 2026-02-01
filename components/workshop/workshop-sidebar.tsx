@@ -120,15 +120,6 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                     <Link href="/workshop" className="flex items-center gap-3">
                         <Logo />
                     </Link>
-                <motion.button
-                    onClick={() => startWorkshopTour()}
-                    className="rounded-full border border-zinc-800 bg-zinc-900/50 p-2 text-xs font-medium text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-200"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <HelpCircle size={14} />
-                </motion.button>
                     </div>
                     <div className="flex items-center justify-between">
                         <div id="dexter-stack-switcher" className="flex min-w-0 flex-1">

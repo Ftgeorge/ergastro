@@ -4,12 +4,16 @@ import { useState, useEffect } from "react"
 import { Construction, Play, Code2, Copy, Check, Sparkles, HelpCircle } from "lucide-react"
 import { useWorkbenchStore, ComponentNode } from "@/lib/workbench-store"
 import { ComponentRenderer } from "@/components/workbench/component-renderer"
+import { CodeHighlighter } from "@/components/ui/code-highlighter"
+import { Dropdown } from "@/components/ui/dropdown"
 import { cn } from "@/lib/utils"
 import { WorkbenchSidebar } from "@/components/workbench/workbench-sidebar"
 import { useTour } from "@/components/tour/tour-provider"
+import { components } from "@/lib/component-registry"
 
 export default function WorkbenchPage() {
     const [copiedCode, setCopiedCode] = useState(false)
+    const [selectedComponentId, setSelectedComponentId] = useState('button')
     
     // Tour functionality
     const { startWorkbenchTour } = useTour()
@@ -32,17 +36,58 @@ export default function WorkbenchPage() {
     // Initialize with a default scene
     useEffect(() => {
         if (!currentScene) {
+            const selectedComponent = components.find(c => c.id === selectedComponentId)
+            
+            // Get default props based on component type
+            const getDefaultProps = (componentId: string) => {
+                switch (componentId) {
+                    case 'button':
+                        return {
+                            variant: 'primary',
+                            size: 'md',
+                            children: 'Hello World',
+                            hasIcon: false,
+                            iconPack: 'lucide',
+                            iconName: 'none',
+                            iconPosition: 'right'
+                        }
+                    case 'toggle':
+                        return {
+                            checked: false,
+                            disabled: false,
+                            variant: 'default',
+                            label: 'Toggle',
+                            description: 'Toggle description'
+                        }
+                    case 'dropdown':
+                        return {
+                            value: '',
+                            options: [
+                                { value: 'option1', label: 'Option 1' },
+                                { value: 'option2', label: 'Option 2' },
+                                { value: 'option3', label: 'Option 3' }
+                            ],
+                            placeholder: 'Select...',
+                            disabled: false,
+                            variant: 'default'
+                        }
+                    case 'basic-card':
+                        return {
+                            title: 'Card Title',
+                            description: 'Card description goes here'
+                        }
+                    default:
+                        return {}
+                }
+            }
+
             const rootNode: ComponentNode = {
                 id: 'root',
-                type: 'button',
-                props: {
-                    variant: 'primary',
-                    size: 'md',
-                    children: 'Hello World'
-                },
+                type: selectedComponentId,
+                props: getDefaultProps(selectedComponentId),
                 metadata: {
                     version: '1.0.0',
-                    category: 'Inputs'
+                    category: selectedComponent?.category || 'Inputs'
                 }
             }
 
@@ -57,7 +102,95 @@ export default function WorkbenchPage() {
             }
             addAnimation(animation)
         }
-    }, [currentScene, setCurrentScene, createScene, addAnimation, animationPresets])
+    }, [currentScene, setCurrentScene, createScene, addAnimation, animationPresets, selectedComponentId, components])
+
+    // Handle component change
+    const handleComponentChange = (componentId: string) => {
+        setSelectedComponentId(componentId)
+        
+        // Reset the current scene with new component
+        const selectedComponent = components.find(c => c.id === componentId)
+        
+        const getDefaultProps = (componentId: string) => {
+            switch (componentId) {
+                case 'button':
+                    return {
+                        variant: 'primary',
+                        size: 'md',
+                        children: 'Hello World',
+                        hasIcon: false,
+                        iconPack: 'lucide',
+                        iconName: 'none',
+                        iconPosition: 'right'
+                    }
+                case 'toggle':
+                    return {
+                        checked: false,
+                        disabled: false,
+                        variant: 'default',
+                        label: 'Toggle',
+                        description: 'Toggle description'
+                    }
+                case 'dropdown':
+                    return {
+                        value: '',
+                        options: [
+                            { value: 'option1', label: 'Option 1' },
+                            { value: 'option2', label: 'Option 2' },
+                            { value: 'option3', label: 'Option 3' }
+                        ],
+                        placeholder: 'Select...',
+                        disabled: false,
+                        variant: 'default'
+                    }
+                case 'basic-card':
+                    return {
+                        title: 'Card Title',
+                        description: 'Card description goes here'
+                    }
+                default:
+                    return {}
+            }
+        }
+
+        const rootNode: ComponentNode = {
+            id: 'root',
+            type: componentId,
+            props: getDefaultProps(componentId),
+            metadata: {
+                version: '1.0.0',
+                category: selectedComponent?.category || 'Inputs'
+            }
+        }
+
+        const scene = createScene(`${selectedComponent?.name || 'Component'} Scene`, rootNode)
+        setCurrentScene(scene)
+
+        // Add a fade-in animation
+        const animation = {
+            ...animationPresets['fade-in'],
+            id: crypto.randomUUID(),
+            targetComponentId: rootNode.id
+        }
+        addAnimation(animation)
+    }
+
+    // Auto-start workbench tour when page loads (only once per session)
+    useEffect(() => {
+        // Check if tour has been shown before
+        const hasSeenTour = localStorage.getItem('workbench-tour-seen')
+        
+        if (!hasSeenTour) {
+            // Start tour after a short delay to allow page to render
+            const tourTimeout = setTimeout(() => {
+                startWorkbenchTour()
+                // Mark tour as seen
+                localStorage.setItem('workbench-tour-seen', 'true')
+            }, 1500)
+
+            return () => clearTimeout(tourTimeout)
+        }
+    }, [startWorkbenchTour])
 
 
     const generateCode = () => {
@@ -132,6 +265,22 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                         <h1 className="text-xl font-black tracking-tight">Workbench</h1>
                                         <p className="text-[10px] text-zinc-500">Live Component Playground</p>
                                     </div>
+                                </div>
+
+                                {/* Component Selector */}
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-medium text-zinc-500">Component:</span>
+                                    <Dropdown
+                                        value={selectedComponentId}
+                                        onValueChange={handleComponentChange}
+                                        options={components.map(comp => ({
+                                            value: comp.id,
+                                            label: comp.name
+                                        }))}
+                                        placeholder="Select component"
+                                        variant="outline"
+                                        className="w-40"
+                                    />
                                 </div>
 
                                 <div className="flex items-center gap-2">
@@ -235,10 +384,12 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                         </button>
                                     </div>
 
-                                    <div className="rounded-md bg-zinc-950 border border-zinc-800 p-4 font-mono text-sm text-zinc-300">
-                                        <pre className="whitespace-pre-wrap break-all">
-                                            {generateCode()}
-                                        </pre>
+                                    <div>
+                                        <CodeHighlighter 
+                                            code={generateCode()} 
+                                            language="tsx"
+                                            theme="github-dark"
+                                        />
                                     </div>
                                 </div>
                             )}

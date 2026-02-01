@@ -7,6 +7,7 @@ import { components } from "@/lib/component-registry"
 import { ComponentPreview } from "@/components/workshop/component-preview"
 import { CodeInspector } from "@/components/workshop/code-inspector"
 import { Dropdown } from "@/components/ui/dropdown"
+import { getAvailableIcons, AVAILABLE_ICON_PACKS } from "@/components/ui/buttons/button-workbench"
 import { cn } from "@/lib/utils"
 import {
     Eye,
@@ -34,6 +35,7 @@ function ComponentPreviewControls({
     setPreviewProps: (props: Record<string, string | boolean> | ((prev: Record<string, string | boolean>) => Record<string, string | boolean>)) => void
 }) {
     const handlePropChange = (propName: string, value: string | boolean) => {
+        console.log('ComponentPreviewControls handlePropChange:', propName, value)
         setPreviewProps((prev: Record<string, string | boolean>) => ({ ...prev, [propName]: value }))
     }
 
@@ -51,7 +53,7 @@ function ComponentPreviewControls({
 
                 // Filter out complex types that we can't easily control with a simple input
                 if (prop.type.includes("ReactNode") && prop.name !== "children") return null
-                if (prop.name === "iconName" || prop.name === "iconPack") return null // Specialized controls could be added later
+                if (prop.name === "iconPosition" || prop.name === "isLoading") return null // Remove these specific props
 
                 return (
                     <div key={prop.name} className="flex flex-col gap-1.5">
@@ -60,7 +62,27 @@ function ComponentPreviewControls({
                         {isBoolean ? (
                             <Dropdown
                                 value={previewProps[prop.name] ? "true" : "false"}
-                                onValueChange={(value) => handlePropChange(prop.name, value === "true")}
+                                onValueChange={(value) => {
+                                    const boolValue = value === "true"
+                                    console.log('hasIcon dropdown changed:', value, 'boolValue:', boolValue, 'current iconName:', previewProps.iconName)
+                                    handlePropChange(prop.name, boolValue)
+                                    
+                                    // Special handling for hasIcon
+                                    if (prop.name === 'hasIcon') {
+                                        if (boolValue) {
+                                            // When turning on hasIcon, set default values
+                                            if (previewProps.iconName === 'none') {
+                                                console.log('Setting default iconName to Search')
+                                                handlePropChange('iconName', 'Search')
+                                            }
+                                        } else {
+                                            // When turning off hasIcon, reset values
+                                            console.log('Turning off hasIcon, resetting values')
+                                            handlePropChange('iconName', 'none')
+                                            handlePropChange('iconPack', 'lucide')
+                                        }
+                                    }
+                                }}
                                 options={[
                                     { value: "true", label: "True" },
                                     { value: "false", label: "False" },
@@ -71,7 +93,13 @@ function ComponentPreviewControls({
                             <Dropdown
                                 value={String(previewProps[prop.name])}
                                 onValueChange={(value) => handlePropChange(prop.name, value)}
-                                options={options.map(opt => ({ value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) }))}
+                                options={
+                                    prop.name === 'iconPack' 
+                                        ? AVAILABLE_ICON_PACKS.map(pack => ({ value: pack, label: pack.charAt(0).toUpperCase() + pack.slice(1) }))
+                                        : prop.name === 'iconName'
+                                        ? ['none', ...getAvailableIcons(previewProps.iconPack as any)].map(icon => ({ value: icon, label: icon === 'none' ? 'None' : icon }))
+                                        : options.map(opt => ({ value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) }))
+                                }
                                 className="w-full"
                             />
                         ) : (
@@ -257,8 +285,8 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
 
             {/* Tabs Layout */}
             <div className="flex flex-col gap-8">
-                <div className="flex items-center justify-between gap-4">
-                    <div className="flex flex-wrap gap-2 rounded-md bg-zinc-900/40 p-1 border border-zinc-900 w-fit">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex overflow-x-auto flex-row gap-2 rounded-md bg-zinc-900/40 p-1 border border-zinc-900 w-full overflow-hidden">
                         {tabs.map((tab) => {
                             const Icon = tabIcons[tab]
                             return (

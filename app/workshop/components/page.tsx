@@ -66,12 +66,37 @@ export default function WorkshopPage() {
         return () => clearTimeout(timeout)
     }, [charIndex, isDeleting, currentPhraseIndex])
 
+    // Auto-start workshop tour when page loads (only once per session)
+    useEffect(() => {
+        // Check if tour has been shown before
+        const hasSeenTour = localStorage.getItem('workshop-tour-seen')
+        
+        if (!hasSeenTour) {
+            // Start tour after a short delay to allow page to render
+            const tourTimeout = setTimeout(() => {
+                startWorkshopTour()
+                // Mark tour as seen
+                localStorage.setItem('workshop-tour-seen', 'true')
+            }, 1500)
+
+            return () => clearTimeout(tourTimeout)
+        }
+    }, [startWorkshopTour])
+
     return (
-        <div className="flex h-full items-center justify-center bg-zinc-950 px-6 py-24 text-zinc-100">
+        <div className="relative flex h-full items-center justify-center bg-zinc-950 px-6 py-24 text-zinc-100">
             <div className="flex max-w-3xl flex-col items-center text-center" id="workshop-header">
                 {/* Help Button */}
-                
-
+                <motion.button
+                    onClick={() => startWorkshopTour()}
+                    className="absolute top-4 right-4 p-2 rounded-md transition-colorshover:bg-zinc-800"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    aria-label="Start workshop tour"
+                >
+                    <HelpCircle size={14} />
+                </motion.button>
                 {/* Typewriter Effect */}
                 <div className="mb-6 flex min-h-fit items-center justify-center">
                     <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
