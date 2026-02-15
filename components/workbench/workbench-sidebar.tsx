@@ -2,14 +2,14 @@
 
 import { ComponentEntry, components } from "@/lib/component-registry"
 import { cn } from "@/lib/utils"
-import { 
-    ChevronLeft, ChevronRight, ChevronDown, ChevronUp, 
-    Search, Settings, Menu, X, HelpCircle, 
-    CheckCircle2, AlertCircle, Wrench, 
+import {
+    ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
+    Search, Settings, Menu, X, HelpCircle,
+    CheckCircle2, AlertCircle, Wrench,
     Heart, Star, Download, Upload,
-    Plus, Minus, Check, Copy, Trash, Edit, 
-    Eye, EyeOff, Lock, Unlock, Bell, Mail, 
-    User, Users, Home, Folder, File, 
+    Plus, Minus, Check, Copy, Trash, Edit,
+    Eye, EyeOff, Lock, Unlock, Bell, Mail,
+    User, Users, Home, Folder, File,
     Calendar, Clock, Play, Pause, Sparkles
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
@@ -128,12 +128,12 @@ export function WorkbenchSidebar() {
         }
     }, [currentScene, createScene, addAnimation, animationPresets])
 
-    const selectedComponent = currentScene 
-        ? components.find((c: ComponentEntry) => c.id === currentScene.root.type) 
+    const selectedComponent = currentScene
+        ? components.find((c: ComponentEntry) => c.id === currentScene.root.type)
         : null
 
     const availableComponents = useMemo(
-        () => components.filter((c: ComponentEntry) => c.status === "production-ready"),
+        () => components.filter((c: ComponentEntry) => c.status === "production-ready" && !c.hideFromWorkbench),
         []
     )
 
@@ -318,8 +318,8 @@ export function WorkbenchSidebar() {
                                     onClick={() => setFramework(fw)}
                                     className={cn(
                                         "shrink-0 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all",
-                                        framework === fw 
-                                            ? "bg-zinc-800 text-accent" 
+                                        framework === fw
+                                            ? "bg-zinc-800 text-accent"
                                             : "text-zinc-500 hover:text-zinc-300"
                                     )}
                                 >
@@ -333,9 +333,9 @@ export function WorkbenchSidebar() {
                 {/* Component Search & Selector */}
                 <div className="space-y-3">
                     <div className="relative group" role="search">
-                        <Search 
-                            size={16} 
-                            className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-accent transition-colors" 
+                        <Search
+                            size={16}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-accent transition-colors"
                         />
                         <input
                             ref={searchInputRef}
@@ -346,8 +346,8 @@ export function WorkbenchSidebar() {
                             className="w-full rounded-md border border-zinc-900 bg-zinc-900/30 py-2.5 pl-10 pr-10 text-xs font-medium text-zinc-100 outline-none ring-accent/10 transition-all focus:border-accent/40 focus:bg-zinc-900/50 focus:ring-2"
                             aria-label="Search components"
                         />
-                        <div 
-                            className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-zinc-800 bg-zinc-900 text-[9px] font-black text-zinc-600" 
+                        <div
+                            className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-zinc-800 bg-zinc-900 text-[9px] font-black text-zinc-600"
                             aria-hidden="true"
                         >
                             /
@@ -374,9 +374,9 @@ export function WorkbenchSidebar() {
                     <Dropdown
                         value={currentScene?.root.type || ''}
                         onValueChange={handleComponentChange}
-                        options={filteredComponents.map((c: ComponentEntry) => ({ 
-                            value: c.id, 
-                            label: c.name 
+                        options={filteredComponents.map((c: ComponentEntry) => ({
+                            value: c.id,
+                            label: c.name
                         }))}
                         aria-label="Select component"
                     />
@@ -415,7 +415,7 @@ export function WorkbenchSidebar() {
                                         const isChildren = prop.name === "children"
 
                                         // Handle icon-related props with the IconSelector component
-                                        if (prop.name === "hasIcon" || prop.name === "iconPosition" || 
+                                        if (prop.name === "hasIcon" || prop.name === "iconPosition" ||
                                             prop.name === "iconPack" || prop.name === "iconName") {
                                             return null // These are handled by IconSelector
                                         }
@@ -477,51 +477,51 @@ export function WorkbenchSidebar() {
                                             </PropertyRow>
                                         )
                                     })}
-                                    
+
                                     {/* Add IconSelector if the component has icon-related props */}
-                                    {selectedComponent.usage.props.some(prop => 
+                                    {selectedComponent.usage.props.some(prop =>
                                         prop.name.startsWith("icon") || prop.name === "hasIcon"
                                     ) && (
-                                        <IconSelector
-                                            hasIcon={Boolean(currentScene?.root.props.hasIcon)}
-                                            onHasIconChange={(checked: boolean) => {
-                                                // Always reset values when turning off, regardless of current state
-                                                if (!checked) {
-                                                    // Update all props in a single call to avoid batching issues
+                                            <IconSelector
+                                                hasIcon={Boolean(currentScene?.root.props.hasIcon)}
+                                                onHasIconChange={(checked: boolean) => {
+                                                    // Always reset values when turning off, regardless of current state
+                                                    if (!checked) {
+                                                        // Update all props in a single call to avoid batching issues
+                                                        handleMultiplePropChanges({
+                                                            hasIcon: false,
+                                                            iconPosition: "right",
+                                                            iconPack: "lucide",
+                                                            iconName: "none"
+                                                        })
+                                                    } else {
+                                                        // When turning on, set a default icon if none is selected
+                                                        const currentIconName = currentScene?.root.props.iconName
+                                                        const changes: Record<string, unknown> = { hasIcon: true }
+
+                                                        if (!currentIconName || currentIconName === "none") {
+                                                            changes.iconName = "Search"
+                                                        }
+
+                                                        handleMultiplePropChanges(changes)
+                                                    }
+                                                }}
+                                                iconPosition={(currentScene?.root.props.iconPosition as string) || "right"}
+                                                onIconPositionChange={(value: string) => handlePropChange("iconPosition", value)}
+                                                iconPack={(currentScene?.root.props.iconPack as string) || "lucide"}
+                                                onIconPackChange={(value: string) => {
+                                                    // Update both iconPack and iconName in a single atomic operation
                                                     handleMultiplePropChanges({
-                                                        hasIcon: false,
-                                                        iconPosition: "right",
-                                                        iconPack: "lucide",
+                                                        iconPack: value,
                                                         iconName: "none"
                                                     })
-                                                } else {
-                                                    // When turning on, set a default icon if none is selected
-                                                    const currentIconName = currentScene?.root.props.iconName
-                                                    const changes: Record<string, unknown> = { hasIcon: true }
-                                                    
-                                                    if (!currentIconName || currentIconName === "none") {
-                                                        changes.iconName = "Search"
-                                                    }
-                                                    
-                                                    handleMultiplePropChanges(changes)
-                                                }
-                                            }}
-                                            iconPosition={(currentScene?.root.props.iconPosition as string) || "right"}
-                                            onIconPositionChange={(value: string) => handlePropChange("iconPosition", value)}
-                                            iconPack={(currentScene?.root.props.iconPack as string) || "lucide"}
-                                            onIconPackChange={(value: string) => {
-                                                // Update both iconPack and iconName in a single atomic operation
-                                                handleMultiplePropChanges({
-                                                    iconPack: value,
-                                                    iconName: "none"
-                                                })
-                                            }}
-                                            iconName={(currentScene?.root.props.iconName as string) || "none"}
-                                            onIconNameChange={(value: string) => {
-                                                handlePropChange("iconName", value)
-                                            }}
-                                        />
-                                    )}
+                                                }}
+                                                iconName={(currentScene?.root.props.iconName as string) || "none"}
+                                                onIconNameChange={(value: string) => {
+                                                    handlePropChange("iconName", value)
+                                                }}
+                                            />
+                                        )}
                                 </div>
                             ) : (
                                 <div className="px-4 py-8 text-center">
@@ -530,37 +530,39 @@ export function WorkbenchSidebar() {
                             )}
                         </CollapsibleSection>
 
-                        {/* Animation Section */}
-                        <CollapsibleSection
-                            id="animation"
-                            title="Animation"
-                            isExpanded={expandedSections.has('animation')}
-                            onToggle={() => toggleSection('animation')}
-                        >
-                            <AnimationSelector
-                                animation={getCurrentAnimation() || null}
-                                hasIcon={Boolean(currentScene?.root.props.hasIcon)}
-                                onAnimationChange={(value: string) => {
-                                    if (value === 'none') {
-                                        if (currentScene) {
-                                            const filteredAnimations = currentScene.animations.filter(
-                                                (anim: AnimationNode) => anim.targetComponentId !== currentScene.root.id
-                                            )
-                                            setCurrentScene({
-                                                ...currentScene,
-                                                animations: filteredAnimations,
-                                                metadata: {
-                                                    ...currentScene.metadata,
-                                                    updatedAt: new Date().toISOString()
-                                                }
-                                            })
+                        {/* Animation Section - Hidden for components that shouldn't be animated */}
+                        {currentScene?.root.type !== 'dropdown' && currentScene?.root.type !== 'toggle' && (
+                            <CollapsibleSection
+                                id="animation"
+                                title="Animation"
+                                isExpanded={expandedSections.has('animation')}
+                                onToggle={() => toggleSection('animation')}
+                            >
+                                <AnimationSelector
+                                    animation={getCurrentAnimation() || null}
+                                    hasIcon={Boolean(currentScene?.root.props.hasIcon)}
+                                    onAnimationChange={(value: string) => {
+                                        if (value === 'none') {
+                                            if (currentScene) {
+                                                const filteredAnimations = currentScene.animations.filter(
+                                                    (anim: AnimationNode) => anim.targetComponentId !== currentScene.root.id
+                                                )
+                                                setCurrentScene({
+                                                    ...currentScene,
+                                                    animations: filteredAnimations,
+                                                    metadata: {
+                                                        ...currentScene.metadata,
+                                                        updatedAt: new Date().toISOString()
+                                                    }
+                                                })
+                                            }
+                                        } else {
+                                            handleAnimationChange(value)
                                         }
-                                    } else {
-                                        handleAnimationChange(value)
-                                    }
-                                }}
-                            />
-                        </CollapsibleSection>
+                                    }}
+                                />
+                            </CollapsibleSection>
+                        )}
                     </div>
                 )}
             </div>

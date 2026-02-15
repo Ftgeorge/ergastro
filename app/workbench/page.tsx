@@ -14,7 +14,7 @@ import { components } from "@/lib/component-registry"
 export default function WorkbenchPage() {
     const [copiedCode, setCopiedCode] = useState(false)
     const [selectedComponentId, setSelectedComponentId] = useState('button')
-    
+
     // Tour functionality
     const { startWorkbenchTour } = useTour()
 
@@ -37,7 +37,7 @@ export default function WorkbenchPage() {
     useEffect(() => {
         if (!currentScene) {
             const selectedComponent = components.find(c => c.id === selectedComponentId)
-            
+
             // Get default props based on component type
             const getDefaultProps = (componentId: string) => {
                 switch (componentId) {
@@ -94,23 +94,25 @@ export default function WorkbenchPage() {
             const scene = createScene('Default Scene', rootNode)
             setCurrentScene(scene)
 
-            // Add a fade-in animation
-            const animation = {
-                ...animationPresets['fade-in'],
-                id: crypto.randomUUID(),
-                targetComponentId: rootNode.id
+            // Add a fade-in animation, unless it's a component that shouldn't be animated
+            if (selectedComponentId !== 'dropdown' && selectedComponentId !== 'toggle') {
+                const animation = {
+                    ...animationPresets['fade-in'],
+                    id: crypto.randomUUID(),
+                    targetComponentId: rootNode.id
+                }
+                addAnimation(animation)
             }
-            addAnimation(animation)
         }
     }, [currentScene, setCurrentScene, createScene, addAnimation, animationPresets, selectedComponentId, components])
 
     // Handle component change
     const handleComponentChange = (componentId: string) => {
         setSelectedComponentId(componentId)
-        
+
         // Reset the current scene with new component
         const selectedComponent = components.find(c => c.id === componentId)
-        
+
         const getDefaultProps = (componentId: string) => {
             switch (componentId) {
                 case 'button':
@@ -166,20 +168,22 @@ export default function WorkbenchPage() {
         const scene = createScene(`${selectedComponent?.name || 'Component'} Scene`, rootNode)
         setCurrentScene(scene)
 
-        // Add a fade-in animation
-        const animation = {
-            ...animationPresets['fade-in'],
-            id: crypto.randomUUID(),
-            targetComponentId: rootNode.id
+        // Add a fade-in animation, unless it's a component that shouldn't be animated
+        if (componentId !== 'dropdown' && componentId !== 'toggle') {
+            const animation = {
+                ...animationPresets['fade-in'],
+                id: crypto.randomUUID(),
+                targetComponentId: rootNode.id
+            }
+            addAnimation(animation)
         }
-        addAnimation(animation)
     }
 
     // Auto-start workbench tour when page loads (only once per session)
     useEffect(() => {
         // Check if tour has been shown before
         const hasSeenTour = localStorage.getItem('workbench-tour-seen')
-        
+
         if (!hasSeenTour) {
             // Start tour after a short delay to allow page to render
             const tourTimeout = setTimeout(() => {
@@ -267,22 +271,6 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                     </div>
                                 </div>
 
-                                {/* Component Selector */}
-                                <div className="flex items-center gap-2">
-                                    <span className="text-xs font-medium text-zinc-500">Component:</span>
-                                    <Dropdown
-                                        value={selectedComponentId}
-                                        onValueChange={handleComponentChange}
-                                        options={components.map(comp => ({
-                                            value: comp.id,
-                                            label: comp.name
-                                        }))}
-                                        placeholder="Select component"
-                                        variant="outline"
-                                        className="w-40"
-                                    />
-                                </div>
-
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={startWorkbenchTour}
@@ -294,7 +282,7 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                     >
                                         <HelpCircle size={16} />
                                     </button>
-                                    
+
                                     <button
                                         id="dexter-animation-controls"
                                         onClick={toggleAnimations}
@@ -385,8 +373,8 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                     </div>
 
                                     <div>
-                                        <CodeHighlighter 
-                                            code={generateCode()} 
+                                        <CodeHighlighter
+                                            code={generateCode()}
                                             language="tsx"
                                             theme="github-dark"
                                         />

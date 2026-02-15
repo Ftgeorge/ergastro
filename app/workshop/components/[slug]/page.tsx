@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useEffect, useState } from "react"
 import { notFound } from "next/navigation"
 import { ComponentDetail } from "@/components/workshop/component-detail"
@@ -13,8 +14,7 @@ interface PageProps {
 export default function ComponentPage({ params }: PageProps) {
     const [highlightedCode, setHighlightedCode] = useState("")
 
-    // For now, we'll use a placeholder approach since we can't read files on client side
-    const slug = "button" // This would come from params
+    const { slug } = React.use(params)
     const componentEntry = components.find((c: ComponentEntry) => c.slug === slug)
 
     const sourceCode = componentEntry?.sourceCode || "// Source code not available"
@@ -61,7 +61,7 @@ export default function ComponentPage({ params }: PageProps) {
                     slug={slug}
                     sourceCode={sourceCode}
                     highlightedCode={highlightedCode}
-                    basename="button.tsx"
+                    basename={`${slug}.tsx`}
                 />
             </div>
         </div>

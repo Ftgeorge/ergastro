@@ -1,48 +1,8 @@
-"use client"
-
-import { ButtonWorkbench } from "@/components/ui/buttons/button-workbench"
-import { BasicCardWorkbench } from "@/components/ui/cards/basic-card-workbench"
-import { Toggle, ToggleWithLabel } from "@/components/ui/toggle"
+import { Button } from "@/components/ui/buttons/button"
+import { BasicCard } from "@/components/ui/cards/basic-card"
+import { Toggle } from "@/components/ui/toggle"
 import { Dropdown } from "@/components/ui/dropdown"
-import { ComingSoon } from "@/components/ui/coming-soon"
-import React, { ReactNode, useState } from "react"
-
-// Wrapper components with default props for the registry
-function ToggleWorkbench(props: Record<string, unknown>) {
-    const [checked, setChecked] = useState(false)
-    
-    return (
-        <ToggleWithLabel
-            checked={checked}
-            onCheckedChange={setChecked}
-            label={props.label as string || "Toggle"}
-            description={props.description as string}
-            variant={(props.variant as any) || "default"}
-            disabled={props.disabled as boolean || false}
-        />
-    )
-}
-
-function DropdownWorkbench(props: Record<string, unknown>) {
-    const [value, setValue] = useState("")
-    
-    const defaultOptions = [
-        { value: "option1", label: "Option 1" },
-        { value: "option2", label: "Option 2" },
-        { value: "option3", label: "Option 3" }
-    ]
-    
-    return (
-        <Dropdown
-            value={value}
-            onValueChange={setValue}
-            options={(props.options as any[]) || defaultOptions}
-            placeholder={props.placeholder as string || "Select..."}
-            variant={(props.variant as any) || "default"}
-            disabled={props.disabled as boolean || false}
-        />
-    )
-}
+import React, { ReactNode } from "react"
 
 export type ComponentStatus = "production-ready" | "experimental" | "in-progress"
 export type StackStatus = "stable" | "beta" | "alpha" | "deprecated"
@@ -66,6 +26,7 @@ export interface ComponentEntry {
     category: string
     description: string
     component: (props?: Record<string, unknown>) => ReactNode
+    initialProps?: Record<string, unknown> // Added initialProps to the interface
     sourcePath: string
     sourceCode?: string
     status: ComponentStatus
@@ -90,6 +51,7 @@ export interface ComponentEntry {
     updatedAt: string
     reuseCount: number
     isFeatured?: boolean
+    hideFromWorkbench?: boolean
 }
 
 export interface ProjectEntry {
@@ -109,7 +71,8 @@ export const components: ComponentEntry[] = [
         slug: "button",
         category: "Inputs",
         description: "Single button component with variants (primary, secondary, outline, ghost, destructive, success, warning).",
-        component: (props) => <ButtonWorkbench {...(props as Record<string, unknown>)} />,
+        component: (props) => <Button {...(props as any)} />,
+        initialProps: { children: "Button" },
         sourcePath: "components/ui/buttons/button.tsx",
         sourceCode: `import { ButtonHTMLAttributes, forwardRef } from "react"
 import { cn } from "@/lib/utils"
@@ -252,15 +215,14 @@ export type { ButtonVariant, ButtonSize }`,
                 "When the only state is loading (consider disabling the whole UI section instead)."
             ],
             props: [
-                { name: "variant", type: "'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'success' | 'warning' | 'icon'", description: "Visual style variant.", defaultValue: "primary" },
+                { name: "variant", type: "'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'success' | 'warning'", description: "Visual style variant.", defaultValue: "primary" },
                 { name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", description: "Button size.", defaultValue: "md" },
                 { name: "isLoading", type: "boolean", description: "Shows a spinner and disables the button.", defaultValue: false },
                 { name: "fullWidth", type: "boolean", description: "Expands button to full container width.", defaultValue: false },
-                { name: "children", type: "ReactNode", description: "Label content for the button.", defaultValue: "Button" },
-                { name: "hasIcon", type: "boolean", description: "Whether to show an icon with the button.", defaultValue: false },
-                { name: "iconPosition", type: "'left' | 'right'", description: "Position of the icon relative to text.", defaultValue: "right" },
-                { name: "iconPack", type: "'lucide' | 'fontawesome' | 'heroicons' | 'feather' | 'antdesign' | 'bootstrap' | 'ionicons' | 'material'", description: "Icon pack to choose from.", defaultValue: "lucide" },
-                { name: "iconName", type: "string", description: "Name of the icon from selected pack.", defaultValue: "none" }
+                { name: "hasIcon", type: "boolean", description: "Whether button has an icon.", defaultValue: false },
+                { name: "iconPack", type: "string", description: "Icon pack to use.", defaultValue: "lucide" },
+                { name: "iconName", type: "string", description: "Name of the icon.", defaultValue: "none" },
+                { name: "iconPosition", type: "'left' | 'right'", description: "Position of the icon.", defaultValue: "right" }
             ]
         },
         notes: {
@@ -290,7 +252,7 @@ export type { ButtonVariant, ButtonSize }`,
         slug: "basic-card",
         category: "Containers",
         description: "A versatile container with subtle border and zinc background.",
-        component: BasicCardWorkbench,
+        component: (props) => <BasicCard {...(props as any)} />,
         sourcePath: "components/ui/cards/basic-card.tsx",
         sourceCode: `export function BasicCard() {
     return (
@@ -331,7 +293,10 @@ export type { ButtonVariant, ButtonSize }`,
         slug: "toggle",
         category: "Inputs",
         description: "A versatile toggle switch component with multiple variants (default, outline, ghost, gradient, minimal) and labeled option.",
-        component: (props) => <ToggleWorkbench {...(props as Record<string, unknown>)} />,
+        component: (props) => {
+            const [checked, setChecked] = React.useState(false)
+            return <Toggle {...(props as any)} checked={checked} onCheckedChange={setChecked} />
+        },
         sourcePath: "components/ui/toggle.tsx",
         sourceCode: `"use client"
 
@@ -549,15 +514,8 @@ export function ToggleWithLabel({
             ],
             props: [
                 { name: "checked", type: "boolean", description: "Whether the toggle is on or off", defaultValue: "false" },
-                { name: "onCheckedChange", type: "(checked: boolean) => void", description: "Callback function when toggle state changes", defaultValue: null },
                 { name: "disabled", type: "boolean", description: "Whether the toggle is disabled and non-interactive", defaultValue: "false" },
-                { name: "variant", type: "ToggleVariant", description: "Visual style variant (default, outline, ghost, gradient, minimal)", defaultValue: "default" },
-                { name: "className", type: "string", description: "Additional CSS classes for styling", defaultValue: null },
-                { name: "id", type: "string", description: "Unique identifier for the toggle", defaultValue: null },
-                { name: "aria-label", type: "string", description: "Accessibility label for screen readers", defaultValue: null },
-                { name: "label", type: "string", description: "Label text for ToggleWithLabel component", defaultValue: null },
-                { name: "description", type: "string", description: "Optional description text for ToggleWithLabel", defaultValue: null },
-                { name: "labelPosition", type: "'left' | 'right'", description: "Position of label relative to toggle", defaultValue: "right" }
+                { name: "variant", type: "'default' | 'outline' | 'ghost' | 'gradient' | 'minimal'", description: "Visual style variant.", defaultValue: "default" }
             ]
         },
         notes: {
@@ -585,7 +543,8 @@ export function ToggleWithLabel({
             }
         ],
         updatedAt: "2024-01-15",
-        reuseCount: 18
+        reuseCount: 18,
+        hideFromWorkbench: true
     },
     {
         id: "dropdown",
@@ -593,7 +552,15 @@ export function ToggleWithLabel({
         slug: "dropdown",
         category: "Inputs",
         description: "A flexible dropdown component with multiple variants (default, outline, ghost, gradient, minimal) and full keyboard navigation.",
-        component: (props) => <DropdownWorkbench {...(props as Record<string, unknown>)} />,
+        component: (props) => {
+            const [value, setValue] = React.useState("")
+            const options = [
+                { value: "option1", label: "Option 1" },
+                { value: "option2", label: "Option 2" },
+                { value: "option3", label: "Option 3" }
+            ]
+            return <Dropdown {...(props as any)} value={value} onValueChange={setValue} options={options} />
+        },
         sourcePath: "components/ui/dropdown.tsx",
         sourceCode: `"use client"
 
@@ -951,15 +918,9 @@ export function Dropdown({
                 "When you need multi-select capability (use checkbox group)"
             ],
             props: [
-                { name: "value", type: "string", description: "Currently selected option value", defaultValue: "" },
-                { name: "onValueChange", type: "(value: string) => void", description: "Callback function when selection changes", defaultValue: null },
-                { name: "options", type: "DropdownOption[]", description: "Array of option objects with value, label, and optional disabled flag", defaultValue: "[]" },
                 { name: "placeholder", type: "string", description: "Placeholder text when no value is selected", defaultValue: "Select..." },
                 { name: "disabled", type: "boolean", description: "Whether the dropdown is disabled and non-interactive", defaultValue: "false" },
-                { name: "variant", type: "DropdownVariant", description: "Visual style variant (default, outline, ghost, gradient, minimal)", defaultValue: "default" },
-                { name: "className", type: "string", description: "Additional CSS classes for styling", defaultValue: null },
-                { name: "id", type: "string", description: "Unique identifier for the dropdown", defaultValue: null },
-                { name: "aria-label", type: "string", description: "Accessibility label for screen readers", defaultValue: null }
+                { name: "variant", type: "'default' | 'outline' | 'ghost' | 'gradient' | 'minimal'", description: "Visual style variant.", defaultValue: "default" }
             ]
         },
         notes: {
@@ -992,7 +953,8 @@ export function Dropdown({
             }
         ],
         updatedAt: "2024-01-15",
-        reuseCount: 32
+        reuseCount: 32,
+        hideFromWorkbench: true
     }
 ]
 

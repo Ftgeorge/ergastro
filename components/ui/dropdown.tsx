@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -37,20 +37,31 @@ export function Dropdown({
 }: DropdownProps) {
     const [open, setOpen] = useState(false)
     const [highlightedIndex, setHighlightedIndex] = useState(-1)
-    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 })
+    const [dropdownPosition, setDropdownPosition] = useState<{
+        top?: number
+        bottom?: number
+        left: number
+        width: number
+    }>({ left: 0, width: 0 })
     const triggerRef = useRef<HTMLButtonElement>(null)
     const listRef = useRef<HTMLUListElement>(null)
 
-    const selectedOption = options.find(opt => opt.value === value)
+    const safeOptions = useMemo(() => Array.isArray(options) ? options : [], [options])
+    const selectedOption = safeOptions.find(opt => opt.value === value)
     const displayValue = selectedOption?.label || placeholder
 
     // Calculate dropdown position when opening
     const updateDropdownPosition = () => {
         if (triggerRef.current) {
             const rect = triggerRef.current.getBoundingClientRect()
+            const menuHeight = 240 // max-h-60
+            const spaceBelow = window.innerHeight - rect.bottom
+            const shouldFlip = spaceBelow < menuHeight && rect.top > menuHeight
+
             setDropdownPosition({
-                top: rect.top + window.scrollY, // Use top instead of bottom
-                left: rect.left + window.scrollX,
+                top: shouldFlip ? undefined : rect.bottom + 4,
+                bottom: shouldFlip ? window.innerHeight - rect.top + 4 : undefined,
+                left: rect.left,
                 width: rect.width
             })
         }
@@ -60,6 +71,13 @@ export function Dropdown({
     useEffect(() => {
         if (open) {
             updateDropdownPosition()
+            // Also update on scroll/resize
+            window.addEventListener('scroll', updateDropdownPosition, true)
+            window.addEventListener('resize', updateDropdownPosition)
+            return () => {
+                window.removeEventListener('scroll', updateDropdownPosition, true)
+                window.removeEventListener('resize', updateDropdownPosition)
+            }
         }
     }, [open])
 
@@ -183,7 +201,7 @@ export function Dropdown({
                     e.preventDefault()
                     setHighlightedIndex(prev => {
                         const next = prev + 1
-                        if (next >= options.length) return 0
+                        if (next >= safeOptions.length) return 0
                         return next
                     })
                     break
@@ -191,7 +209,7 @@ export function Dropdown({
                     e.preventDefault()
                     setHighlightedIndex(prev => {
                         const next = prev - 1
-                        if (next < 0) return options.length - 1
+                        if (next < 0) return safeOptions.length - 1
                         return next
                     })
                     break
@@ -199,7 +217,7 @@ export function Dropdown({
                 case " ":
                     e.preventDefault()
                     if (highlightedIndex >= 0) {
-                        const option = options[highlightedIndex]
+                        const option = safeOptions[highlightedIndex]
                         if (!option.disabled) {
                             onValueChange(option.value)
                             setOpen(false)
@@ -216,7 +234,7 @@ export function Dropdown({
 
         document.addEventListener("keydown", handleKeyDown)
         return () => document.removeEventListener("keydown", handleKeyDown)
-    }, [open, highlightedIndex, options, onValueChange])
+    }, [open, highlightedIndex, safeOptions, onValueChange])
 
     // Scroll highlighted item into view
     useEffect(() => {
@@ -227,7 +245,7 @@ export function Dropdown({
     }, [open, highlightedIndex])
 
     return (
-        <div className={cn("relative", className)}>
+        <div className={cn("relative", open && "z-50", className)}>
             <button
                 ref={triggerRef}
                 type="button"
@@ -240,9 +258,6 @@ export function Dropdown({
                 onClick={() => {
                     if (!disabled) {
                         setOpen(!open)
-                        if (!open) {
-                            setTimeout(updateDropdownPosition, 0)
-                        }
                     }
                 }}
                 className={cn(
@@ -275,18 +290,20 @@ export function Dropdown({
                     ref={listRef}
                     role="listbox"
                     aria-activedescendant={highlightedIndex >= 0 ? `${id}-option-${highlightedIndex}` : undefined}
+                    style={{
+                        position: "fixed",
+                        top: dropdownPosition.top !== undefined ? `${dropdownPosition.top}px` : "auto",
+                        bottom: dropdownPosition.bottom !== undefined ? `${dropdownPosition.bottom}px` : "auto",
+                        left: `${dropdownPosition.left}px`,
+                        width: `${dropdownPosition.width}px`,
+                    }}
                     className={cn(
-                        "fixed z-9999 max-h-60 overflow-auto rounded-md",
+                        "z-[9999] max-h-60 overflow-auto rounded-md",
                         "focus:outline-none",
                         listVariants[variant]
                     )}
-                    style={{
-                        top: `${dropdownPosition.top - 200}px`, // Move up by dropdown height
-                        left: `${dropdownPosition.left}px`,
-                        width: `${dropdownPosition.width}px`
-                    }}
                 >
-                    {options.map((option, index) => (
+                    {safeOptions.map((option, index) => (
                         <li
                             key={option.value}
                             id={`${id}-option-${index}`}

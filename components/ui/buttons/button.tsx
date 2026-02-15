@@ -1,10 +1,11 @@
 import { ButtonHTMLAttributes, forwardRef } from "react"
 import { cn } from "@/lib/utils"
+import * as LucideIcons from "lucide-react"
 
-type ButtonVariant = 
-  | "primary" 
-  | "secondary" 
-  | "outline" 
+type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "outline"
   | "ghost"
   | "destructive"
   | "success"
@@ -19,22 +20,27 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
   fullWidth?: boolean
+  // Workbench icon props
+  hasIcon?: boolean
+  iconPack?: string
+  iconName?: string
+  iconPosition?: string
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 
+  primary:
     "bg-accent text-accent-foreground hover:opacity-90 active:opacity-80 shadow-sm",
-  secondary: 
+  secondary:
     "bg-zinc-900 text-zinc-100 hover:bg-zinc-800 active:bg-zinc-700 shadow-sm",
-  outline: 
+  outline:
     "border border-zinc-800 bg-transparent text-zinc-200 hover:bg-zinc-900/40 active:bg-zinc-900/60",
-  ghost: 
+  ghost:
     "bg-transparent text-zinc-200 hover:bg-zinc-900/40 active:bg-zinc-900/60",
-  destructive: 
+  destructive:
     "bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 shadow-sm",
-  success: 
+  success:
     "bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 shadow-sm",
-  warning: 
+  warning:
     "bg-amber-500 text-zinc-950 hover:bg-amber-600 active:bg-amber-700 shadow-sm",
 }
 
@@ -47,18 +53,36 @@ const sizeStyles: Record<ButtonSize, string> = {
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ 
-    className, 
-    variant = "primary", 
+  ({
+    className,
+    variant = "primary",
     size = "md",
     isLoading = false,
     leftIcon,
     rightIcon,
     fullWidth = false,
+    // Destructure workbench props to avoid leaking to DOM
+    hasIcon,
+    iconPack,
+    iconName,
+    iconPosition,
     disabled,
     children,
-    ...props 
+    ...props
   }, ref) => {
+    // Dynamically render workbench icon if provided
+    const RenderedIcon = () => {
+      if (!hasIcon || !iconName || iconName === "none") return null
+
+      const IconComponent = (LucideIcons as any)[iconName]
+      if (!IconComponent) return null
+
+      return <IconComponent size={size === "xs" || size === "sm" ? 14 : 16} />
+    }
+
+    const finalLeftIcon = iconPosition === "left" ? <RenderedIcon /> : leftIcon
+    const finalRightIcon = iconPosition === "right" ? <RenderedIcon /> : rightIcon
+
     return (
       <button
         ref={ref}
@@ -78,30 +102,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading && (
-          <svg 
-            className="animate-spin -ml-1 h-4 w-4" 
-            xmlns="http://www.w3.org/2000/svg" 
-            fill="none" 
-            viewBox="0 0 24 24"
-          >
-            <circle 
-              className="opacity-25" 
-              cx="12" 
-              cy="12" 
-              r="10" 
-              stroke="currentColor" 
-              strokeWidth="4"
-            />
-            <path 
-              className="opacity-75" 
-              fill="currentColor" 
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
+          <LucideIcons.Loader2 className="animate-spin h-4 w-4" />
         )}
-        {!isLoading && leftIcon && <span className="shrink-0">{leftIcon}</span>}
+        {!isLoading && finalLeftIcon && <span className="shrink-0">{finalLeftIcon}</span>}
         {children}
-        {!isLoading && rightIcon && <span className="shrink-0">{rightIcon}</span>}
+        {!isLoading && finalRightIcon && <span className="shrink-0">{finalRightIcon}</span>}
       </button>
     )
   }

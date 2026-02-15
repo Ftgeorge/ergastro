@@ -7,7 +7,6 @@ import { components } from "@/lib/component-registry"
 import { ComponentPreview } from "@/components/workshop/component-preview"
 import { CodeInspector } from "@/components/workshop/code-inspector"
 import { Dropdown } from "@/components/ui/dropdown"
-import { getAvailableIcons, AVAILABLE_ICON_PACKS } from "@/components/ui/buttons/button-workbench"
 import { cn } from "@/lib/utils"
 import {
     Eye,
@@ -34,9 +33,24 @@ function ComponentPreviewControls({
     previewProps: Record<string, string | boolean>
     setPreviewProps: (props: Record<string, string | boolean> | ((prev: Record<string, string | boolean>) => Record<string, string | boolean>)) => void
 }) {
-    const handlePropChange = (propName: string, value: string | boolean) => {
-        console.log('ComponentPreviewControls handlePropChange:', propName, value)
-        setPreviewProps((prev: Record<string, string | boolean>) => ({ ...prev, [propName]: value }))
+    const handlePropChange = (propName: string, value: any) => {
+        const propDef = componentEntry.usage?.props.find(p => p.name === propName)
+        let processedValue = value
+
+        // Try to parse as JSON if the type suggests it's an object/array
+        if (typeof value === "string" && propDef && (propDef.type.includes("[]") || propDef.type.includes("{}") || propDef.type.includes("Record"))) {
+            const trimmed = value.trim()
+            if ((trimmed.startsWith('[') && trimmed.endsWith(']')) || (trimmed.startsWith('{') && trimmed.endsWith('}'))) {
+                try {
+                    processedValue = JSON.parse(trimmed)
+                } catch (e) {
+                    // Stay as string if parsing fails, component should handle it
+                }
+            }
+        }
+
+        console.log('ComponentPreviewControls handlePropChange:', propName, processedValue)
+        setPreviewProps((prev: Record<string, any>) => ({ ...prev, [propName]: processedValue }))
     }
 
     const { usage } = componentEntry
@@ -64,24 +78,7 @@ function ComponentPreviewControls({
                                 value={previewProps[prop.name] ? "true" : "false"}
                                 onValueChange={(value) => {
                                     const boolValue = value === "true"
-                                    console.log('hasIcon dropdown changed:', value, 'boolValue:', boolValue, 'current iconName:', previewProps.iconName)
                                     handlePropChange(prop.name, boolValue)
-                                    
-                                    // Special handling for hasIcon
-                                    if (prop.name === 'hasIcon') {
-                                        if (boolValue) {
-                                            // When turning on hasIcon, set default values
-                                            if (previewProps.iconName === 'none') {
-                                                console.log('Setting default iconName to Search')
-                                                handlePropChange('iconName', 'Search')
-                                            }
-                                        } else {
-                                            // When turning off hasIcon, reset values
-                                            console.log('Turning off hasIcon, resetting values')
-                                            handlePropChange('iconName', 'none')
-                                            handlePropChange('iconPack', 'lucide')
-                                        }
-                                    }
                                 }}
                                 options={[
                                     { value: "true", label: "True" },
@@ -93,13 +90,7 @@ function ComponentPreviewControls({
                             <Dropdown
                                 value={String(previewProps[prop.name])}
                                 onValueChange={(value) => handlePropChange(prop.name, value)}
-                                options={
-                                    prop.name === 'iconPack' 
-                                        ? AVAILABLE_ICON_PACKS.map(pack => ({ value: pack, label: pack.charAt(0).toUpperCase() + pack.slice(1) }))
-                                        : prop.name === 'iconName'
-                                        ? ['none', ...getAvailableIcons(previewProps.iconPack as any)].map(icon => ({ value: icon, label: icon === 'none' ? 'None' : icon }))
-                                        : options.map(opt => ({ value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) }))
-                                }
+                                options={options.map(opt => ({ value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) }))}
                                 className="w-full"
                             />
                         ) : (
@@ -146,22 +137,32 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
     const componentEntry = components.find(c => c.slug === slug)
 
     // Dynamic Preview Controls State
-    const [previewProps, setPreviewProps] = useState<Record<string, string | boolean>>({})
+    const [previewProps, setPreviewProps] = useState<Record<string, any>>({})
     const [isInitialized, setIsInitialized] = useState(false)
 
     useEffect(() => {
-        if (componentEntry?.usage?.props) {
-            const initialProps = componentEntry.usage.props.reduce((acc, prop) => {
-                acc[prop.name] =
-                    typeof prop.defaultValue === "number"
-                        ? String(prop.defaultValue)
-                        : prop.defaultValue ?? (prop.type.includes("boolean") ? false : "")
-                return acc
-            }, {} as Record<string, string | boolean>)
-            setPreviewProps(initialProps)
+        if (componentEntry) {
+            // Merge defaults from usage metadata and initialProps
+            const defaults: Record<string, any> = {}
+
+            // 1. Get defaults from metadata
+            componentEntry.usage?.props.forEach(prop => {
+                if (prop.defaultValue !== undefined) {
+                    let val: any = prop.defaultValue
+                    // Clean up stringified booleans if needed
+                    if (prop.type.includes("boolean") && typeof val === "string") {
+                        val = val.toLowerCase() === "true"
+                    }
+                    defaults[prop.name] = val
+                }
+            })
+
+            // 2. Overlay with custom initialProps if they exist
+            const merged = { ...defaults, ...componentEntry.initialProps }
+            setPreviewProps(merged)
             setIsInitialized(true)
         }
-    }, [componentEntry])
+    }, [slug]) // Use slug as dependency to reset when switching components
 
     const [usageHighlightedCode, setUsageHighlightedCode] = useState("")
     const [copied, setCopied] = useState(false)
@@ -175,15 +176,22 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                 const propDef = componentEntry.usage?.props.find(p => p.name === key)
                 // Filter out null/undefined, empty strings, and values that match the default
                 if (value === undefined || value === null || value === "") return false
-                if (key === "children") return false // Handle children separately
+                if (key === "children" || key === "onCheckedChange" || key === "onValueChange") return false
                 if (propDef && value === propDef.defaultValue) return false
                 return true
             })
-            .map(([key, value]) => typeof value === "boolean" ? key : `${key}="${value}"`)
+            .map(([key, value]) => {
+                if (typeof value === "boolean") return value ? key : ""
+                if (typeof value === "string") return `${key}="${value}"`
+                return `${key}={${JSON.stringify(value)}}`
+            })
+            .filter(Boolean)
             .join(" ")
 
+        const children = previewProps.children || ""
+
         return `<${componentEntry.name}${props ? " " + props : ""}>
-    ${previewProps.children}
+    ${children}
 </${componentEntry.name}>`
     }
 
@@ -196,13 +204,12 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                 setUsageHighlightedCode(html)
             } catch (e) {
                 console.error("Highlighting failed", e)
-                // Fallback to basic sanitization or just raw code wrapped if shiki fails
             } finally {
                 setIsHighlighting(false)
             }
         }
         highlight()
-    }, [previewProps])
+    }, [previewProps, slug])
 
     if (!componentEntry) return null
 
@@ -331,7 +338,20 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                             {activeTab === "Preview" && (
                                 <div className="flex flex-col gap-6">
                                     <ComponentPreview>
-                                        <Component {...previewProps} />
+                                        <Component
+                                            {...Object.keys(previewProps)
+                                                .filter(key => componentEntry.usage?.props.some(p => p.name === key) || key === "children")
+                                                .reduce((obj, key) => {
+                                                    obj[key] = previewProps[key]
+                                                    return obj
+                                                }, {} as Record<string, any>)}
+                                            {...(componentEntry.usage?.props.some(p => p.name === 'onCheckedChange')
+                                                ? { onCheckedChange: (checked: boolean) => setPreviewProps(prev => ({ ...prev, checked })) }
+                                                : {})}
+                                            {...(componentEntry.usage?.props.some(p => p.name === 'onValueChange')
+                                                ? { onValueChange: (value: string) => setPreviewProps(prev => ({ ...prev, value })) }
+                                                : {})}
+                                        />
                                     </ComponentPreview>
 
                                     <div className="rounded-xl border border-zinc-900 bg-zinc-900/20 p-5">

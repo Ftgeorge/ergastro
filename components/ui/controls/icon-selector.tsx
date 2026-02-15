@@ -2,7 +2,19 @@
 
 import { Dropdown } from "@/components/ui/dropdown"
 import { Toggle } from "@/components/ui/toggle"
-import { getAvailableIcons, AVAILABLE_ICON_PACKS } from "@/components/ui/buttons/button-workbench"
+const AVAILABLE_ICON_PACKS = ["lucide"] as const
+
+const getAvailableIcons = (pack: typeof AVAILABLE_ICON_PACKS[number]) => {
+    if (pack === "lucide") {
+        return [
+            "Search", "Menu", "X", "ChevronLeft", "ChevronRight", "ChevronDown", "ChevronUp",
+            "Heart", "Star", "Download", "Upload", "Settings", "Plus", "Minus", "Check",
+            "Copy", "Trash", "Edit", "Eye", "EyeOff", "Lock", "Unlock", "Bell", "Mail",
+            "User", "Users", "Home", "Folder", "File", "Calendar", "Clock", "Play", "Pause"
+        ]
+    }
+    return []
+}
 
 interface IconSelectorProps {
     hasIcon: boolean

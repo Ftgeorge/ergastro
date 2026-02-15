@@ -217,7 +217,8 @@ export const componentsMetadata: ComponentEntry[] = [
             }
         ],
         updatedAt: "2024-01-15",
-        reuseCount: 18
+        reuseCount: 18,
+        hideFromWorkbench: true
     },
     {
         id: "dropdown",
@@ -300,7 +301,8 @@ export const componentsMetadata: ComponentEntry[] = [
             }
         ],
         updatedAt: "2024-01-15",
-        reuseCount: 32
+        reuseCount: 32,
+        hideFromWorkbench: true
     }
 ]
 
